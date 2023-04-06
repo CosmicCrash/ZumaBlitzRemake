@@ -47,6 +47,10 @@
                     "angle": {
                         "type": "number",
                         "description": "The rotation angle of the shooter, in degrees. 0 is up."
+                    },
+                    "bidirectional": {
+                        "type": "boolean",
+                        "description": "If true, can also aim backwards as well."
                     }
                 },
                 "required": [

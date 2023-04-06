@@ -64,6 +64,9 @@ function Target:onShot()
         "fonts/score0.json"
     )
 
+    -- increment stats
+    _Game.session.level.fruitScore = _Game.session.level.fruitScore + (_Game.session.level.targetHitScore * _Game.session.level.multiplier)
+
     -- Activate Hot Frog if we're using the Spirit Turtle
     if _Game:getCurrentProfile():getFrogatarEffects().fruitsActivateHotFrog then
         _Game.session.level:incrementBlitzMeter(1, true)

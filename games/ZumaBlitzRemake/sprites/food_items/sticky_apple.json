@@ -1,5 +1,5 @@
 {
-    "path": "./sprites/images/sticky_apple.png",
+    "path": "images/food_items/sticky_apple.png",
     "frame_size": {
         "x": 100,
         "y": 98

@@ -1,5 +1,5 @@
 {
-    "path": "./sprites/images/pyro_pig.png",
+    "path": "images/food_items/pyro_pig.png",
     "frame_size": {
         "x": 100,
         "y": 98

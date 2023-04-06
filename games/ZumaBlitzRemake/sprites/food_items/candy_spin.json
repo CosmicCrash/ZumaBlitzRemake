@@ -1,5 +1,5 @@
 {
-    "path": "./sprites/images/candy_spin.png",
+    "path": "images/food_items/candy_spin.png",
     "frame_size": {
         "x": 100,
         "y": 98

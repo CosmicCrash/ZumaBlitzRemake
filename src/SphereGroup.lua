@@ -723,30 +723,40 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	end
 	
 	self.map.level.speedTimer = 2.75
-		_Log:printt("Speed bonus", "-> " ..  self.map.level.speedBonus)
 
 		local speedShot = _Game:getCurrentProfile():getEquippedPower("speed_shot")
 		local powerSpeedBonusMultiplier = (speedShot and speedShot:getCurrentLevelData().speedBonusMultiplier) or 1
+		local finalSpeedBonus = self.map.level.speedBonus * powerSpeedBonusMultiplier
 
 	-- Calculate and grant score.
-	local score = length * (10 + (self.map.level.speedBonus * powerSpeedBonusMultiplier))
+	local score = length * (10 + finalSpeedBonus)
+
+	-- Calculate score from chain bonus
+	local finalChainBonus = 0
 	if boostCombo then
         if self.map.level.combo > 5 then
-            score = score + 100 + ((self.map.level.combo - 6) * 10)
+            finalChainBonus = 100 + ((self.map.level.combo - 6) * 10)
             -- Starting from Chain x10, grant +500 to score,
 			-- then add +250 every 5th chain
             if self.map.level.combo == 10 then
-                score = score + 500
+                finalChainBonus = finalChainBonus + 500
 			elseif self.map.level.combo > 10 and score % 5 == 0 then
-				score = score + 250
+				finalChainBonus = finalChainBonus + 250
 			end
+			score = score + finalChainBonus
 		end
 	end
+
+	-- Calculate score from combos
+    -- Combos give score + 1000 x combo
+	local finalComboBonus = 0
 	if effectConfig.applyChainMultiplier then
-        -- Combos give score + 1000 x combo
-		score = score + (1000 * (self.sphereChain.combo - 1))
+		finalComboBonus = (1000 * (self.sphereChain.combo - 1))
+		score = score + finalComboBonus
     end
-    local gapbonus
+
+	-- Calculate score from gap bonus
+    local gapbonus = 0
     if #gaps > 0 then
 		local largestGap = math.max(unpack(gaps))
 		gapbonus = _MathRoundDown((10500 * (1.5^-largestGap)+500), 10) * #gaps
@@ -755,6 +765,22 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 
 	self.map.level:grantScore(score)
 	self.sphereChain.comboScore = self.sphereChain.comboScore + score
+
+    -- add to various statistics.
+
+	self.map.level.combosScore = self.map.level.combosScore + (finalComboBonus * self.map.level.multiplier)
+	self.map.level.gapsScore = self.map.level.gapsScore + (gapbonus * self.map.level.multiplier)
+	self.map.level.speedScore = self.map.level.speedScore + (finalSpeedBonus * self.map.level.multiplier)
+	self.map.level.gapsNum = self.map.level.gapsNum + #gaps
+	self.map.level.chainScore = self.map.level.chainScore + (finalChainBonus * self.map.level.multiplier)
+
+	if self.sphereChain.combo > 1 then
+		self.map.level.combosNum = self.map.level.combosNum + 1
+	end
+	if self.map.level.combo > 5 then
+		self.map.level.chainsNum = self.map.level.chainsNum + 1
+	end
+
 
     -- Determine and display the floating text.
 	-- Level:grantScore() already multiplies our score for us, so let's multiply here.

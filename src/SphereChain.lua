@@ -234,8 +234,9 @@ function SphereChain:generateSphere()
 	self:getLastSphereGroup():pushSphereBack(self.generationColor)
 	-- Each sphere: check whether we should generate a fresh new color (chance is colorStreak).
 	-- If this exceeds max singles the same color will be forced, and if it exceeds max clump then a new color will be forced.
+	local streak_random = (self.map.level.ball_rng_streak:random(1000)-1) / 1000
 
-	if (math.random() >= self.path.colorStreak and self.path.curSingles < self.path.maxSingles+1) or self.path.curClump >= self.path.maxClumps then
+	if (streak_random >= self.path.colorStreak and self.path.curSingles < self.path.maxSingles+1) or self.path.curClump >= self.path.maxClumps then
 		self.generationColor = self.path:newSphereColor(self.generationColor)
 		self.path.curClump = 1
 		self.path.curSingles = self.path.curSingles + 1

@@ -93,6 +93,13 @@ function Shooter:update(dt)
             -- else, the mouse takes advantage and overwrites the position
             self.pos.x = _MousePos.x
         end
+        if self.movement.bidirectional == true then
+            if self.mousePos.y > self.movement.y then
+                self.angle = math.pi
+            else
+                self.angle = 0
+            end
+        end
         -- clamp to bounds defined in config
         self.pos.x = math.min(math.max(self.pos.x, self.movement.xMin), self.movement.xMax)
     elseif self.movement.type == "circular" then
@@ -134,7 +141,7 @@ function Shooter:update(dt)
             end
         else
             self.knockbackTime = 0
-            self.pos = Vec2(self.movement.x, self.movement.y)
+            self.pos = Vec2(self.movement.x or self.pos.x, self.movement.y or self.pos.y)
         end
     end
 
@@ -272,10 +279,6 @@ function Shooter:isActive()
     if level:hasShotSpheres() and not self.config.multishot then
         return false
     end
-    -- Same for shooting delay.
-    if self.shotCooldown then
-        return false
-    end
     -- FORK-RELATED CHANGE: If the time's up, don't allow to shoot more spheres.
     if level:areAllObjectivesReached() then
         return false
@@ -288,10 +291,23 @@ end
 
 ---Launches the current sphere, if possible.
 function Shooter:shoot()
+
+    -- don't shoot if the shot is still on cooldown
+    if self.shotCooldown then
+        return
+    end
+
     -- if nothing to shoot, it's pointless
     if _Game.session.level.pause or not self:isActive() or self.color == 0 then
         return
     end
+    -- add to stat if a hot frog shot is fired (-2)
+    if self.color == -2 then
+        _Game.session.level.hotFrogShotsFired = _Game.session.level.hotFrogShotsFired + 1
+    end
+    
+    -- force angle to 1/10000 precision
+    self.angle = math.floor(self.angle * 10000)/10000 
 
     local sphereConfig = self:getSphereConfig()
     if sphereConfig.shootBehavior.type == "lightning" then
@@ -403,7 +419,7 @@ function Shooter:draw()
     end
 
     -- this color
-    if self.sphereEntity then
+    if self.sphereEntity and not self.shotCooldown then
         self.sphereEntity:setPos(self:getSpherePos())
         self.sphereEntity:setAngle(self.angle)
         self.sphereEntity:setFrame(self:getSphereFrame())

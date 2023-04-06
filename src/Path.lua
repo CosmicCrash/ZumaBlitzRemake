@@ -186,6 +186,9 @@ function Path:update(dt)
 			score = score + extraPoints
 		end
 
+		self.map.level.curveClearsScore = self.map.level.curveClearsScore + score
+		self.map.level.curveClearsNum = self.map.level.curveClearsNum + 1
+
         self.map.level:grantScore(score)
 		self.map.level:spawnFloatingText(
             string.format("CURVE CLEARED\n+%s", _NumStr(score * self.map.level.multiplier)),
@@ -220,7 +223,7 @@ end
 ---@return integer
 function Path:newSphereColor(curColor)
 	repeat
-		pendingColor = math.random(1, #self.colors)
+		pendingColor = self.map.level.ball_rng:random(#self.colors)
 	until curColor ~= pendingColor
 	
 	return self.colors[pendingColor]

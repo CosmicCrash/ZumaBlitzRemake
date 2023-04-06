@@ -1,5 +1,5 @@
 {
-    "path": "./sprites/images/hot_chocolate.png",
+    "path": "images/food_items/hot_chocolate.png",
     "frame_size": {
         "x": 100,
         "y": 98

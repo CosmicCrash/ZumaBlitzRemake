@@ -1,5 +1,5 @@
 {
-    "path": "./sprites/images/shamrock_soda.png",
+    "path": "images/food_items/shamrock_soda.png",
     "frame_size": {
         "x": 100,
         "y": 98

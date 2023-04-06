@@ -4,9 +4,11 @@
 F	index
 N	Main Page
 
-P	Welcome! This is work in progress!
+P	Welcome! This guide is designed to provide a reference of all the .json files used by the game in order to build your own games or mods.
+P	This is work in progress!
 P	TBD:
 P	Configuration Files
+P	Concepts
 P	
 P	    config.json
 P	    runtime.json
@@ -36,9 +38,10 @@ N	Overview
 
 P	This page explains various value types and symbols assigned to it.
 D	- (number) |A number value.
+D	- (integer) |An integer value.
 D	- (string) |A string value.
-D	- (boolean) |A boolean value (true or false).
-D	- (list) |A list.
+D	- (bool) |A boolean value (true or false).
+D	- (list) |A list (array).
 D	- (object) |A JSON object.
 D	- (Vec2) |A 2D vector. It is a table which contains the following values:
 D		- x (number) |The length of the vector along X axis.
@@ -66,10 +69,10 @@ N	config/highscores.json
 
 P	Contains default scoreboard settings. These are used when launching the game for the first time or when resetting the highscores manually.
 D	- (object) |The root entry.
-D		- size (number) |How many entries should be stored in a single highscore list.
+D		- size (integer) |How many entries should be stored in a single highscore list.
 D		- defaultScores (list) |Contains default highscore entries. The length of this list should be the same as the value of size field.
 D			- (object) |A highscore entry.
-D				- name (number) |A player name which should be displayed.
+D				- name (string) |A player name which should be displayed.
 D				- score (number) |How much points the player has scored.
 D				- level (string) |The level on which the player has ended their game.
 
@@ -91,7 +94,7 @@ D			R <li><b>full</b> - The full beam is always visible.</li>
 D			R <li><b>cut</b> - The beam is cut where it intersects a sphere train.</li>
 D			R <li><b>scale</b> - The beam is shrunk so its top is touching a sphere train.</li>
 D			R </ol>
-D			- speedShotBeamColored (boolean) |Whether the beam should be colored with the current sphere color.
+D			- speedShotBeamColored (bool) |Whether the beam should be colored with the current sphere color.
 D			- speedShotBeamFadeTime (number) |How long the speed shot beam should fade in or out, in seconds.
 D			- speedShotParticle* (Particle*) |Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes.
 D			- shotSpeed (number) |The default speed of how fast the shot spheres will be, in pixels per second.
@@ -110,8 +113,8 @@ D			- attractionSpeedMult (number) |The second value used in the formula. Look a
 D			- knockbackSpeedBase (number) |Speed induced when a group of spheres crashes into another sphere group behind it. This and <i>knockbackSpeedMult</i> form a final value together using this expression: <i>knockbackSpeedBase + max(1, chain) * knockbackSpeedMult</i>.
 D			- knockbackSpeedMult (number) |The second value used in the formula. Look above for description.
 D			- foulSpeed (number) |Maximum speed of spheres when the player fails to complete a level.
-D			- overspeedCheck (boolean) |If true, spheres will never move faster than the maximum speed defined at a given point of the path.
-D			- invincibleScarabs (boolean) |If true, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
+D			- overspeedCheck (bool) |If true, spheres will never move faster than the maximum speed defined at a given point of the path.
+D			- invincibleScarabs (bool) |If true, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
 D		- collectibleBehaviour (object) |Defines how Collectibles behave.
 D			- speed (vec2) |A starting speed of the Collectibles.
 D			- acceleration (vec2) |An acceleration rate of the Collectibles.
@@ -307,7 +310,7 @@ H3	<i>expression</i>
 P	Returns true if the provided expression returns true.
 D	- (object) |A single condition.
 D		- type (string) |<b><i>expression</i></b>
-D		- expression (Expression|boolean) |An expression to be evaluated.
+D		- expression (Expression|bool) |An expression to be evaluated.
 
 H3	<i>colorPresent</i>
 P	Returns true if a given color is present on the board.
@@ -348,14 +351,14 @@ D		- destroyFont (Font*) |A font to be used for the score value displayed on the
 D			R Can be set to <b>hardcoded</b>, in that case the font used is of the "cause" sphere's <i>matchFont</i> value.
 D		- destroyParticle* (Particle*) |A one-time particle packet used when a sphere with this effect is destroyed.
 D		- destroyCollectible* (CollectibleGenerator*) |The collectible generator to be used when spheres with this effect are destroyed.
-D		- levelLossProtection (boolean) |If set to true, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
-D		- immobile (boolean) |If true, the spheres affected with this effect will stop.
-D		- fragile (boolean) |If true, the spheres affected with this effect can be destroyed by shooting through them.
-D		- canBoostCombo (boolean) |If true, the level combo value may rise after destroying a group with this effect.
-D		- canBoostChain (boolean) |As above, but regarding the chain combo value.
-D		- applyChainMultiplier (boolean) |If true, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
-D		- canKeepCombo (boolean) |Whether shot spheres with this effect should not be counted towards combo reset.
-D		- causeCheck (boolean) |When set to true, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
+D		- levelLossProtection (bool) |If set to true, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
+D		- immobile (bool) |If true, the spheres affected with this effect will stop.
+D		- fragile (bool) |If true, the spheres affected with this effect can be destroyed by shooting through them.
+D		- canBoostCombo (bool) |If true, the level combo value may rise after destroying a group with this effect.
+D		- canBoostChain (bool) |As above, but regarding the chain combo value.
+D		- applyChainMultiplier (bool) |If true, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
+D		- canKeepCombo (bool) |Whether shot spheres with this effect should not be counted towards combo reset.
+D		- causeCheck (bool) |When set to true, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
 
 E
 
@@ -386,7 +389,7 @@ D		- destroyParticle (Particle*) |A one-time particle packet used when the spher
 D		- destroyCollectible* (CollectibleGenerator*) |A collectible generator used when the sphere is destroyed.
 D		- color (Color|ColorPalette*) |The color or color palette used by shooting retical.
 D		- colorSpeed* (number) |Must be present only if <b>color</b> is a color palette pointer. Defines how fast (in pixels per second) will the palette be animated.
-D		- interchangeable (boolean) |Whether this sphere can be changed when in the first slot of the shooter.
+D		- interchangeable (bool) |Whether this sphere can be changed when in the first slot of the shooter.
 D		- shootBehavior (object) |Defines how this sphere should behave when it's shot. More info below.
 D		- shootEffects* (list) |A list of collectible effects to be applied when this sphere is shot.
 D		- shootSpeed* (number) |If specified, overrides the speed of this sphere when shot.
@@ -394,6 +397,7 @@ D		- shootSound (SoundEvent*) |A sound event launched when this sphere is shot.
 D		- hitBehavior (object) |Defines how this sphere should behave when it hits a sphere train. More info below.
 D		- hitSound (SoundEvent*) |A sound event launched when this sphere hits a sphere train.
 D		- hitSoundBad* (SoundEvent*) |An optional sound event launched when this sphere hits a sphere train and doesn't match any neighboring spheres.
+D		- hitSoundMiss* (SoundEvent*) |An optional sound event launched when this sphere goes out of bounds without hitting anything.
 D		- matches (list) |A list of sphere type IDs (integers) this sphere type matches with.
 D		- matchFont (Font*) |A font used to display a floating text when this sphere gives points.
 
@@ -467,7 +471,7 @@ H3	<i>level</i>
 P	A single level to be played.
 D	- (object) |A single level entry.
 D		- type (string) |<b><i>level</i></b>
-D		- level (number) |A level ID to be loaded and played.
+D		- level (integer) |A level ID to be loaded and played.
 D		- name (string) |A level name.
 D		- unlockCheckpointsOnBeat* (list) |If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
 
@@ -477,7 +481,7 @@ D	- (object) |A single level entry.
 D		- type (string) |<b><i>randomizer</i></b>
 D		- pool (list) |A list of level IDs to be chosen from.
 D		- names (list) |A list of level names. It is not shuffled, and this list should have the same lenth as <i>count</i>.
-D		- count (number) |How many levels are to be picked from the pool.
+D		- count (integer) |How many levels are to be picked from the pool.
 D		- mode (string) |How the levels will be randomized. There are three possible values:
 D		R <ol>
 D		R <li><b>repeat</b> - Every next level is simply drawn at random from the list.</li>
@@ -491,3 +495,394 @@ E
 
 
 =========================================================================================================================================================================
+
+
+F	config.main
+N	config.json
+
+P	Contains general configuration on the game.
+D	- (object) |The root entry.
+D		- windowTitle (string) |Title of the game window.
+D		- version (string) |Defines the game version.
+D		- engineVersion (string) |OpenSMCE versions that the game is compatible with.
+D		- nativeResolution (vec2) |Native resolution of the game.
+D		- richPresence (object) |Define settings for Discord Rich Presence, if it is enabled. These settings overrides the default engine settings.
+D			- enabled (bool) |Enable Discord Rich Presence.
+D			- applicationID (integer) |Application ID used for your Discord Rich Presence app.
+D		- gameServerSettings (object) | Define game server settings.
+D			- enabled (bool) | Enable connecting to a multiplayer server to sync profile data. Use false to play offline using a local profile. (Default = false)
+D			- server (string) |Server that the game will attempt to connect to on load.
+D		- scoreSubmission (object) | Allows you to send gameplay metrics to a site of your choice after each game. Independent of game server settings. Please see <a href="#">zuma-score-parser</a> for an example on how to parse the score file.
+D			- enabled (bool) | Enable sending score submissions.
+D			- submissionSite (string) | Site that the game will attempt to POST to.
+D		- enableReplays (bool) | Enable saving a replay of the last game to <code>replay.json</code> in the root directory.
+E
+
+=========================================================================================================================================================================
+
+
+F	runtime.main
+N	runtime.json
+
+P	Contains profile settings. This file is saved in the root directory.
+D	- (object) |The root entry.
+D		- profiles (object) |All saved profiles. Profiles are saved of object type (name) where name is the profile name.
+D			- session (object) |Session information.
+D			- levelSaveData (object) |Information on the current saved game.
+D			- equippedPowers (list) |Powers that are currently equipped. If there is more than three items this list will be truncated on load.
+D			- foodInventory (list) |Array of food items and amount currently on hand.
+D			- powerCatalog (list) |List of powers and amount currently on hand.
+D				- amount (integer) |Amount of the power on hand. Cannot be below zero.
+D				- level (integer) |Tier level of the power. Cannot be below zero.
+D			- frogatar (string) |Currently eqipped frogatar. Invalid frogatars will be reset to the default.
+D			- monument (string) |Currently eqipped monument.
+D		- options (object) |Global settings applying to all profiles.
+D			- soundVolume (number) |Set the overall sound volume. Range from 0 to 1.
+D			- musicVolume (number) |Set the overall sound volume. Range from 0 to 1.
+D			- mute (bool) |Mute all sounds.
+D			- fullscreen (bool) |Enable fullscreen.
+D		- highscores (object) |Stores high scores. 
+D		- entries (list) |List of high entries. These are global high scores and are not sorted independent of board.
+D				- name (string) |A player name which should be displayed.
+D				- score (number) |How much points the player has scored.
+D				- level (string) |The board which the game was played on.
+E
+
+=========================================================================================================================================================================
+
+F	config.color_generators
+N	config.color_generators/*.json
+
+P	Defines the colors that will spawn on the shooter.
+D	- (object) |The root entry.
+D		- type (string) | Determines how balls are generated.
+D		- selectChance (number) | if specified, the % chance the next ball is guaranteed to be the same color as the ball in front, unless that color cannot spawn. Value between 0 and 1
+D		- hasToExist (bool) | whether the color has to exist on the board before that color is generated
+D		- colors (list) | list of colors that can be generated. There must be a valid sphere_x.json of the same number.
+D		- colorsRemoveIfNonexistent (list) | list of colors that will not generate if it doesn't exist on the board. If the next ball is a color that does not exist on the board, that color will be changed.
+D		- fallback (object) | a copy of this object that runs if the color generator is unable to generate a color (for example on an empty board)
+E
+
+=========================================================================================================================================================================
+
+F	config.food_items
+N	config.food_items/*.json
+
+P	Defines food that can be bought, gifted, and/or consumed on the island.
+D	- (object) | The root entry.
+D		- id (integer) | Internal ID of the food item. 
+D		- displayName (string) | Name when selecting the food or listed in the shop
+D		- pluralName (string) | Plural form of the name, when the food is offered in bulk
+D		- displayEffects (string) | The description that is displayed when the food is eaten in-game
+D		- description (string) | The description of the food under the display name.
+D		- sprite (sprite) | Sprite that the game displays for this food item.
+D		- effects (object) | list of effects the object has. Its effects are additive with equipped powers.
+E
+
+=========================================================================================================================================================================
+
+F	config.frogatars
+N	config.frogatars/*.json
+
+P	Defines a frogatar that can be used in the game. 
+D	- (object) |The root entry.
+D		- id (integer) | Unique ID for the frogatar.
+D		- displayName (string) | Name of the frogatar, when hovering over the frog.
+D		- coinCosts (list) | Array of coin costs to activate when the monument is offered and used for the first time, second, etc. Initial cost resets when the game is started with a different frogatar. Default cost is zero. 
+D		- offerText (string) | The text that displays when the monument is offered to you
+D		- isMonument (bool) | If true, plays the monument animation at the start of the game.
+D		- transformSound (SoundEvent*) | Sound that plays when the frogatar transforms.
+D		- lightning (Sprite*) | lightning sprite that shows when the frogatar transforms and when the sequence ends. Note: spiritBlastEnabled must be true for the end sequence lightning to display.
+D		- introText (string) | Text shown after the frog transforms in-game
+D		- shooterConfig (object) | Defines the behavior of the shooter.
+D		- effects (object) | list of effects the frogatar has. Additive with equipped food and powers.
+E
+
+=========================================================================================================================================================================
+
+F	config.levels
+N	config.levels/*.json
+
+P	Contains information about a playable level.
+D	- (object) |The root entry.
+D		- version (string) | Minimum version of the game required for this level to load.
+D		- map (object) | directory containing path information.
+D		- legacy (bool) | If true, resize a legacy (800x600) board down and move it to the center of the screen, instead of having to remap the coordinates manually.
+D		- music (object) | Music file played in the background.
+D		- lowTimerMusic (string) | Music file played when the timer is almost out. Overrides music and dangerMusic.
+D		- timerEndMusic (string) | Music file played when the timer runs out. 
+D		- dangerMusic (string) | Music file played when spheres reach the danger zone.
+D		- powerupGeneration (string) | Determines the powerup generation algorithm. The default in ZBR is <b>blitz</b>. Can be one of several values:
+D		R <ol>
+D		R <li><b>independent</b> - Every second, each powerup has a 1 / (frequency) chance to spawn.</li>
+D		R <li><b>classic</b> - Every second, has a 1 / (frequency) chance to spawn a random powerup ball.</li>
+D		R <li><b>revenge</b> - Every second, has a 1 / (frequency) chance to spawn a random powerup ball, per curve, determined by (weight)</li>
+D		R <li><b>blitz</b> - Each powerup spawns every (frequency) + up to (frequencyRange) seconds.</li>
+D		R </ol>
+D		- minimumFrequency (number) | Determines the minimum time that must pass before the same powerup appears again. 
+D		- powerupData (object) | Defines powerup data for the current board.
+D			- powerup (object) | Data on the current powerup
+D				- enabled (bool) | Enables/disables the powerup. This value overrides this value set using powers.
+D				- frequency (number) | Defines how often the powerup appears on the board.
+D				- frequencyRange (number) | Defines the frequnecy randomness of the powerup.
+D				- limit (number) | The max number of the powerup that can appear on the board at once.
+D				- lifetime (number) | Defines how long the powerup lasts before it disappears.
+D				- weight (number) | Determines how frequent this powerup appears compared to other enabled powerups.
+D		- targetFrequency (object) | Determines how often fruit appears.
+D			- initialDelay (number) | Amount of time when the level starts before the target appears.
+D			- delay (number) | Base amount of time after a fruit is collected before another one spawn
+D			- randomDelay (number) | A random number between 0 and this number is added to delay.
+D		- colorGeneratorNormal (string) | Color generator json to use for spawning balls on the shooter.
+D		- colorGeneratorDanger (string) | Color generator json to use for spawning balls on the shooter when balls pass the danger zone.
+D		- matchEffect (string) | Effect linking to a sphere_effects json when balls are matched. Use `match`.
+D		- objectives (list) | Set a number of objectives that the target must reach before the level ends.
+D		- shooter (object) | Defines the shooter in the level.
+D			- name (string) | Default name of the shooter.
+D			- movement (object) | Determines how the shooter moves.
+D				- type (string) | Type of movement. Valid values are `linear` (can move freely on the x-axis) and `circular` (stays around in a fixed position)
+D				- xMin (number) | Defines the minimum position of the shooter on the X axis.
+D				- xMax (number) | Defines the maximum position of the shooter on the X axis.
+D				- x (number) | Defines the shooter's location on the x axis.
+D				- y (number) | Defines the shooter's location on the y axis.
+D				- bidirectional (bool) | If true, can fire down as well as up.
+D		- pathsbehavior (list) | Determines the behavior of curves on the level.
+D			- colors (string) | Colors that will appear in the level.
+D			- colorStreak (string) | % chance that the next ball be of the same color, between 0 and 1
+D			- spawnRules (string) | Determines the spawning algorithm. Can either be `continuous` or `waves`.
+D			- spawnDistance (number) | Initial spawn distance when balls are rolled out.
+D			- dangerDistance (number) | Distance in % which danger is triggered
+D			- dangerDistancepx (number) | Extra distance in px which danger is triggered.
+D			- zumaSpeed (bool) | Use Zuma's algorithm to determine ball speeds. If this is true, speed values are ignored.
+D			- speed (list) | determines how fast balls move at a certain point.
+D				- distance (number) | % from the start to use this speed
+D				- distancepx (number) | Amount of pixels away from the start of the path in addition to distance.
+D				- speed (number) | Speed balls will go at this point. Use negative to force balls to roll backwards.
+D				- transition (object) | type of linear transition for ball speed from one to another point.
+E
+
+=========================================================================================================================================================================
+
+F	config.shooter
+N	config.shooter/*.json
+
+P	Defines the shooter that shoots balls. If a value is not present in the frogatar the value from default.json will be loaded instead. To draw a blank sprite instead of using the default, use a blank.
+D	- (object) |The root entry.
+D		- sprite (string) | The base sprite of the shooter. NOTE: Spheres are drawn on top of this sprite.
+D		- overlaySprite (string) | The overlay sprite of the shooter, drawn on top of the sphere and all other Shooter sprites.
+D		- warmSprite (string) | If this is present, this sprite will be overlaid on top of `sprite` at 0% alpha at 50% of the hot frog meter and 100% alpha at 90% of the meter.
+D		- warmOverlaySprite (string) | If this is present, this sprite will be overlaid on top of `overlaySprite`
+D		- hotSprite (string) | If this is present, this sprite will be used when hot frog mode is activated.
+D		- hotOverlaySprite (string) | If this is present, this sprite will be used when hot frog mode is activated.
+D		- cannonSprite (string) | If this is present, this sprite will be used when cannon mode is activated.
+D		- cannonOverlaySprite (string) | If this is present, this sprite will be used when cannon mode is activated.
+D		- spriteAsOverlay (bool) | If true, treat all sprites as overlays.
+D		- reticle (sprite) | Defines the recticle sprite, if the global setting is enabled.
+D		- reticleNext (sprite) | Defines the recticle sprite for the next ball, if the global setting is enabled.
+D		- reticleTint (bool) | If true, if `reticle` is defined the reticle will be tinted based on the color of the shooter.
+D		- speedShotBeam (object) | Defines the speed shot sprite eminating from the shooter.
+D		- speedShotParticle (object) | Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes.
+D		- shootSpeed (object) | Defines the speed of fired balls in px per second. This is assuming a 800x600 resolution, so higher or lower resolutions will scale speed appropriately.
+D		- ballPos (Vec2) | Defines where the ball will be placed on the shooter.
+D		- multishot (bool) | If set, the player will be able to shoot another sphere before the previous one has hit the sphere train.
+D		- shotCooldown (number) | Defines the interval (in seconds) between two shots. 
+D		- hitboxSize (Vec2) | The size of the Shooter's hitbox in pixels.
+D		- movement (object) | Deprecated in ZBR. Use the `shooter` definition in the level json to define type and positioning.
+D		- spriteOffset (Vec2) | Where the sprite should be positioned relative to the Shooter center.
+D		- overlayOffset (Vec2) | Where the overlay sprite should be positioned relative to the Shooter center.
+D		- nextBallOffset (Vec2) | Where the next ball sprite should be positioned relative to the Shooter center.
+D		- nextBallSprites (object) | A sprite and optional colorBlindSprite defined for each ball type used in the game. Fallback will be `default`.
+E
+
+=========================================================================================================================================================================
+
+F	config.sphere_effect
+N	config.sphere_effect.json
+P	Defines sphere effects for the current level.
+D	- (object) |The root entry.
+D		- particle (string) | A persistent particle packet which will be applied to any affected sphere.
+D		- time (number) | After how many seconds the spheres will be destroyed.
+D		- infectionSize (number) | How many times the effect expansion should occur.
+D		- infectionTime (number) | Time between the expansions, in seconds.
+D		- applySound (string) | A sound event to be played when a sphere gets this effect.
+D		- destroySound (string) | A sound event to be played when spheres afflicted with this effect are destroyed. Can be set to `hardcoded`, in that case the destroy sound from a game module is prioritized.
+D		- destroyFont (string) | A font to be used for the score value displayed on the screen. Can be set to `hardcoded`, in that case the destroy sound from a game module is prioritized.
+D		- destroyParticle (string) | A one-time particle packet used when a sphere with this effect is destroyed.
+D		- destroyCollectible (string) | The collectible generator to be used when spheres with this effect are destroyed.
+D		- levelLossProtection (bool) | If set to true, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
+D		- immobile (bool) | If true, the spheres affected with this effect will stop.
+D		- fragile (bool) | If true, the spheres affected with this effect can be destroyed by shooting through them.
+D		- canBoostCombo (bool) | If true, the level combo value may rise after destroying a group with this effect.
+D		- canBoostChain (bool) | If true, the chain combo value may rise after destroying a group with this effect.
+D		- applyChainMultiplier (bool) | If true, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
+D		- canKeepCombo (bool) | Whether shot spheres with this effect should not be counted towards combo reset.
+D		- causeCheck (bool) | When set to true, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the `cause` sphere.
+D		- ghostTime (bool) | Optional. If defined, the spheres will not be destroyed, but instead will transform into ghosts. This means they will appear as destroyed, but will still physically exist for the given time. It is highly recommended to not set this, as ghost spheres are designed for Zuma sphere physics recreation.
+E
+
+=========================================================================================================================================================================
+
+
+F	config.powers
+N	config.powers/*.json
+P	Defines an equippable power in the game.
+D	- (object) |The root entry.
+D		- displayName (string) | Name of the power
+D		- image (sprite) | Image associated with this power.
+D		- levels (list) | List of levels associated with this power.
+D			- tier (integer) | Tier this power is in.
+D			- ID (integer) | Unique power ID used for statistic purposes.
+D			- cost (number) | Cost to use this power.
+D			- effects (object) | Effects this power has when equipped.
+E
+
+=========================================================================================================================================================================
+
+F	hud_layer_order
+N	hud_layer_order.json
+
+P	Defines the order of HUD elements drawn in the game.
+D	- (list) |The root entry.
+D		- (string) | A list of strings representing UI elements.
+E
+
+=========================================================================================================================================================================
+
+F	loadlist
+N	loadlist.json
+P	A list of all assets loaded when the game starts.
+D	- (list) |The root entry.
+D		- images (list) | A list of strings containing image resoures that are loaded.
+D		- sprites (list) | A list of strings linked to sprite resources (json).
+D		- sounds (list) | A list of sounds that are loaded.
+D		- sound_events (list) | A list of sound_events that are loaded.
+D		- music (list) | A list of msuic that are loaded.
+D		- colorPalettes (list) | A list of colorPalettes that are loaded.
+E
+
+=========================================================================================================================================================================
+
+F	music
+N	music.json
+P	Defines all music used in the game. 
+D	- (object) |The root entry.
+D	- (object) |An object representing the music variable, and string representing the sound resource.
+E
+
+=========================================================================================================================================================================
+
+F	config.target_sprites
+N	config/target_sprites.json
+P	Defines the target sprite (in Zuma's case, fruit).
+D	- (object) |The root entry.
+D		- random (list) | A list of sprites defining fruit images.
+D		- freeSpin (string) | A sprite displaying the spinning animation for that fruit.
+E
+
+=========================================================================================================================================================================
+
+F	config.fonts
+N	config/fonts/*.json
+P	Defines raster fonts used by the game, one row of characters, all of which are the same height.
+D	- (object) |The root entry.
+D		- type (string) | Always `image`.
+D		- image (string) | Image containing font data.
+D		- characters (object) | Defines data for each character.
+D			- (object) | Data for a particular character. Some characters may need to be escaped.
+D				- offset (integer) | y-axis of where the character starts in the image. 
+D				- width (integer) | width of the character.
+E
+=========================================================================================================================================================================
+
+F	maps
+N	maps/*/config.json
+P	Path (curve) data for a particular map. 
+D	- (object) |The root entry.
+D		- name (string) | Name of the map
+D		- paths (list) | List of paths which contains points and metadata that define the map. The last point is the end point.
+D			- group (number) | Curve group for this path. 
+D				- (list) | Data for an individual path.
+D					- (Vec2) | x,y coordinates of a point
+D					- hidden (string) | if true, balls are drawn below all other balls and tunnels of the same priority and fired balls cannot connect to other balls in this segment.
+D					- priority (integer) | Set the drawing priority. Balls with a higher priority are drawn in front of others with a lower one.
+D					- teleport (bool) | if true, balls will immediately teleport from the last point to this point.
+D		- targetPoints (list) | List of points where targets can spawn, if certain conditions are met.
+D			- path (integer) | Path # of the path to check.
+D			- distance (number) | % of the path balls are at before a target is eligible to spawn at this location.
+D			- pos (Vec2) | Location where the target will spawn at.
+D		- sprites (list) | List of sprites present on the map.
+D			- (Vec2) | Location of the sprite
+D			- path (string) | Resource path containing the sprite.
+D			- internal (bool) | If true, treats path as relative.
+D			- priority (integer) | Set the drawing priority.
+D			- background (bool) | Used as a background. Backgrounds are drawn below all other objects.
+E
+
+=========================================================================================================================================================================
+
+F	particles
+N	particles/*.json
+P	Defines a particle on the screen. Structurally similar to a sprite.
+D	- (object) |The root entry.
+D		- path (string) | Resource containing the sprite.
+D		- frame_size (Vec2) | How large the sprite is.
+D		- states (list) | Contains all the different states of the sprite.
+D			- pos (Vec2) | Offset of the sprite in the image file
+D			- frames (Vec2) | How many frames horizontally and vertically does this sprite take?
+D		- internal (bool) | If true, treats path as relative.
+D		- batched (bool) | If true, will draw all sprites of this type at once.
+E
+
+=========================================================================================================================================================================
+
+F	sound_events
+N	sound_events/*.json
+P	Defines individual sound events. All loaded sounds will have a sound effect defined.
+D	- (object) |The root entry.
+D		- path (string) | Resource containing the sound.
+D		- loop (bool) | Whether to loop the sound
+D		- volume (number) | Custom volume level of the sound, from 0 to 1.
+D		- flat (bool) | If true, play in the center and do not position it for 3D sound. This value is ignored for stereo sounds.
+E
+
+=========================================================================================================================================================================
+
+F	sprites
+N	sprites/*.json
+P	Defines a sprite in the game.
+D	- (object) |The root entry.
+D		- path (string) | Resource containing the sprite.
+D		- frame_size (Vec2) | How large the sprite is.
+D		- states (list) | Contains all the different states of the sprite.
+D			- pos (Vec2) | Offset of the sprite in the image file
+D			- frames (Vec2) | How many frames horizontally and vertically does this sprite take?
+D		- internal (bool) | If true, treats path as relative.
+D		- batched (bool) | If true, will draw all sprites of this type at once.
+E
+
+=========================================================================================================================================================================
+
+F	ui
+N	ui/*.json
+P	Defines all of the UI elements in the game. UI flow control is defined in script.lua. This section is a WIP.
+D	- (object) |The root entry.
+D		- inheritShow (bool) | Inherit the show animation from its parent.
+D		- inheritHide (bool) | Inherit the hide animation from its parent.
+D		- inheritPos (bool) | If true, position will be relative to the position of its parent.
+D		- type (string) | Type of object this UI element is. Valid values are `none`, `sprite`, and `text`.
+D		- pos (Vec2) | Position of the element.
+D		- alpha (number) | Alpha transparency of the element, ranging from 0 to 1.
+D		- children (object) | A set of UI objects that are part of this object.
+D		- animations (object) | Transition effect when adding or removing this object from the screen.
+D			- in_ (object) | Tweening animation when the object is shown or added.
+D			- out (object) | Tweening animation when the object is hidden or removed.
+D		- sounds (object) | Resource containing the sound for each `animation` object.
+D			- in_ (string) | Resource containing sound to play when the object is shown.
+D			- out (string) | Resource containing sound to play when the object is hidden or removed.
+D		- layer (string) | What layer this UI element should be drawn on.
+D		- font (string) | Font that should be used to draw UI text.
+D		- align (Vec2) | How the font should be aligned on the UI element. 0 left justifies, 0.5 center justifies, 1 right justifies.
+D		- sprite (string) | Resource path containing the sprite.
+D		- text (string) | Text to display on the UI element.
+D		- hideDelay (number) | Time to wait after triggering hide before this element is removed.
+D		- callbacks (object) | A object containing a list of callbacks based on certain interactions with the element.
+E

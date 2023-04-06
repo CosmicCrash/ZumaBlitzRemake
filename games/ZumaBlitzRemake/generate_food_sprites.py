@@ -24,6 +24,6 @@ for p,n,fs in os.walk("./images/food_items"):
     for filename in fs:
         print(filename[:-4])
         j = open(f"./sprites/food_items/{filename[:-4]}.json", "w")
-        d["path"] = f"./sprites/images/{filename}"
+        d["path"] = f"images/food_items/{filename}"
         j.write(json.dumps(d, indent=4))
         j.close()

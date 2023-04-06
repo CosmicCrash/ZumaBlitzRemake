@@ -298,6 +298,9 @@ function Sphere:deleteVisually(ghostTime, crushed)
 					Vec2(380, 150),
 					"fonts/score0.json"
 				)
+
+				self.map.level.chronoBallsMatched = self.map.level.chronoBallsMatched + 1
+
             end,
             multiplier = function()
                 self.map.level:applyEffect({ type = "addMultiplier", amount = 1 })
@@ -306,6 +309,21 @@ function Sphere:deleteVisually(ghostTime, crushed)
 					Vec2(380, 150),
 					"fonts/score0.json"
 				)
+			end,
+			-- TODO: Add cannon effect
+            cannon = function()
+				self.map.level.bombsMatched = self.map.level.bombsMatched + 1
+				
+			end,
+			-- TODO: Add bomb effect
+            bomb = function()
+				self.map.level.cannonsMatched = self.map.level.cannonsMatched + 1
+				
+			end,
+			-- TODO: Add color nuke effect
+            colornuke = function()
+				self.map.level.colorNukesMatched = self.map.level.colorNukesMatched + 1
+				
 			end
 		}
 		effectTable[self.powerup]()

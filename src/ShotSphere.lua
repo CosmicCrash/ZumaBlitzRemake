@@ -188,6 +188,7 @@ function ShotSphere:moveStep()
 		if self.color ~= -2 then
 			_Game.session.level.combo = 0
 		end
+		_Game.session.level.ballsMissed = _Game.session.level.ballsMissed + 1
 	end
 end
 
