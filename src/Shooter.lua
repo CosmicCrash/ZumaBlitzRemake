@@ -427,11 +427,19 @@ function Shooter:draw()
     end
     -- next color
     local sprite
-    if _Game.runtimeManager.options:getColorblindMode() and self.config.nextBallSprites[self.nextColor].colorblindSprite then
-        sprite = self.config.nextBallSprites[self.nextColor].colorblindSprite
+
+    -- prevent crash if a particular next color is not defined in frogatar.
+    if self.config.nextBallSprites[self.nextColor] == nil then 
+        sprite = self.config.nextBallSprites[0].sprite
     else
-		sprite = self.config.nextBallSprites[self.nextColor].sprite
+
+        if _Game.runtimeManager.options:getColorblindMode() and self.config.nextBallSprites[self.nextColor].colorblindSprite then
+            sprite = self.config.nextBallSprites[self.nextColor].colorblindSprite
+        else
+            sprite = self.config.nextBallSprites[self.nextColor].sprite
+        end
     end
+    
     sprite:draw(self.pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, self:getNextSphereFrame(), self.angle+math.pi)
 
     -- Overlay sprite goes after colors.
@@ -712,6 +720,10 @@ end
 ---Returns the next sphere's animation frame.
 ---@return Vector2
 function Shooter:getNextSphereFrame()
+    -- prevent crash if nextcolor is not defined
+    if self.config.nextBallSprites[self.nextColor] == nil then
+        return Vec2(1)
+    end
     local animationSpeed = self.config.nextBallSprites[self.nextColor].spriteAnimationSpeed
     if animationSpeed then
         return Vec2(math.floor(animationSpeed * _TotalTime), 1)

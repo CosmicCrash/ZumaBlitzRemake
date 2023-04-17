@@ -83,7 +83,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage1.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -105,7 +105,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage2.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -127,7 +127,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage3.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -149,7 +149,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage4.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -171,7 +171,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage5.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -193,7 +193,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage6.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -237,7 +237,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage8.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -259,7 +259,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage9.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -281,7 +281,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage10.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -303,7 +303,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage11.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -325,7 +325,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage12.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",
@@ -347,7 +347,7 @@
                 "animations": {},
                 "sounds": {},
                 "layer": "MenuDialogControls",
-                "sprite": "sprites/dialogs/button_stage13.json",
+                "sprite": "sprites/dialogs/button_stage7.json",
                 "callbacks": {
                   "buttonClick": {
                     "name": "mainMapSelect",

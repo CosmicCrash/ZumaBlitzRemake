@@ -189,6 +189,7 @@ Project Leads:
 Contributors:
 - Brendan Chan - Zuma Blitz SWF file contribution
   - GitHub: https://github.com/bchantech
+  - Discord: bchan#9445
 - Cat Warrior - Asset contributions
   - GitHub: https://github.com/CatWarriorOfficial
   - Discord: Cta warrior#4126

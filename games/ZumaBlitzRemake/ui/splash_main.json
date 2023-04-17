@@ -80,7 +80,8 @@
                     "sounds": {},
                     "layer": "LoadingControls2",
                     "sprite": "sprites/splash/loadingpie_filled.json",
-					"value": 0.5
+					"value": 0.5,
+                    "progressBarType": "circular"
                 },
                 "Progress_Overlay": {
 					"inheritShow":true,

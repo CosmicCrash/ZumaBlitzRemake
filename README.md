@@ -3,8 +3,7 @@
 
 [![Discord](https://img.shields.io/discord/315202394118029314?color=%235865F2&label=Discord%20&logo=discord&style=flat-square)](https://discord.gg/gJgy5x5)
 
-A preservation & recreation project for **Zuma Blitz** - an old Facebook game
-from 2010-2017, specifically the *Kroakatoa Island* update.
+A preservation & recreation project for **Zuma Blitz Kroakatoa Island** using [OpenSMCE](https://github.com/jakubg1/OpenSMCE).
 
 ## About
 
@@ -17,9 +16,7 @@ to relive their 1-minute ball shooting memories.
 
 ## Running from source
 
-This project uses [OpenSMCE](https://github.com/jakubg1/OpenSMCE) as it's
-framework. You will then need to install [LÖVE2D 11.3](https://github.com/love2d/love/releases/tag/11.3)
-on your machine.
+Make sure [LÖVE2D 11.3](https://github.com/love2d/love/releases/tag/11.3) or later is installed on your machine.
 
 ### Windows
 Run `start.bat`.
@@ -40,13 +37,10 @@ love .
 ## Building
 
 ### Windows
-Make sure you have [LÖVE2D 11.3](https://github.com/love2d/love/releases/tag/11.3)
-installed on your machine. 32-bit or 64-bit doesn't matter - although the build
-script can detect both 32-bit and 64-bit EXE installation directories.
-
-You will also need [7-zip](https://www.7-zip.org/download.html) and
- installed
-and it's directory added in `%PATH%`.
+You will need to install the following:
+- [LÖVE2D 11.3](https://github.com/love2d/love/releases/tag/11.3) (32-bit or 64-bit doesn't matter)
+- [7-zip](https://www.7-zip.org/download.html) and it's directory added in `%PATH%`
+- [Resource Hacker](http://www.angusj.com/resourcehacker/) (optional)
 
 Then, simply run `build.bat`. You will see a new folder named `build` after
 it's finished. To skip creation of `*.zip` files, pass `--no-packages`.
@@ -64,38 +58,4 @@ distributing a `.love` file.
 ## Contributing
 See [CONTRIBUTING.md](/CONTRIBUTING.md).
 
-## Why is this a fork of OpenSMCE?
-Contribution reasons.
-
-Any new features added in this fork may be added for OpenSMCE in general.
-
-## Credits
-### Project Leads
-- **jakubg1** - OpenSMCE developer, lead programmer
-  - GitHub: [jakubg1](https://github.com/jakubg1)
-  - Discord: jakubg1#2036
-- **Shambles_SM** - Sub programmer
-  - GitHub: [ShamblesSM](https://github.com/ShamblesSM)
-  - Twitter: [shambles_sm](https://twitter.com/shambles_sm)
-  - Discord: Shambles#3117
-
-### Contributors
-- **Brendan Chan** - Zuma Blitz SWF file contribution
-  - GitHub: [bchantech](https://github.com/bchantech)
-- **Cat Warrior** - Asset contributions
-  - GitHub: [CatWarriorOfficial](https://github.com/CatWarriorOfficial)
-  - Discord: Cta warrior#4126
-- **Nagi** - Asset contributions
-  - GitHub: [Nxgi](https://github.com/Nxgi)
-  - Discord: nagi#1547
-- **FREN-ZC** - Asset fixes
-  - GitHub: [FREN-ZC](https://github.com/FREN-ZC)
-  - Discord: FREN-Z\C#7664
-- **Tacos** - Sound ripping from videos
-  - Discord: Tacos#8810
-- **Glows Lythos** - Board backgrounds
-  - GitHub: [glowslythos](https://github.com/glowslythos)
-  - Discord: glowslythos#0002
-- **Oreztov** - Wild Ball 3d cube recreation
-  - GitHub: [Oreztov](https://github.com/Oreztov)
-  - Discord: Oreztov#2411
+Any new features added in this fork may be added to OpenSMCE in general.

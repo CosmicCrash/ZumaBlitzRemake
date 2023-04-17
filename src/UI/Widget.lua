@@ -57,7 +57,7 @@ function UIWidget:new(name, data, parent)
 	elseif data.type == "spriteButtonSlider" then
 		self.widget = UIWidgetSpriteButtonSlider(self, data.sprite, data.bounds)
 	elseif data.type == "spriteProgress" then
-		self.widget = UIWidgetSpriteProgress(self, data.sprite, data.value, data.smooth)
+		self.widget = UIWidgetSpriteProgress(self, data.sprite, data.value, data.smooth, data.progressBarType)
 	elseif data.type == "spriteProgressBlitz" then
 		self.widget = UIWidgetSpriteProgressBlitz(self, data.sprite, data.value, data.smooth)
 	elseif data.type == "text" then
