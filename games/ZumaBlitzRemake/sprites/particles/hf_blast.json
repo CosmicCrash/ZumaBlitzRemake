@@ -1,0 +1,21 @@
+{
+    "path": "images/particles/hf_blast.png",
+    "frame_size": {
+        "x": 240,
+        "y": 240
+    },
+    "states": [
+        {
+            "pos": {
+                "x": 0,
+                "y": 0
+            },
+            "frames": {
+                "x": 5,
+                "y": 3
+            }
+        }
+    ],
+    "internal": false,
+    "batched": false
+}

@@ -20,4 +20,10 @@ function UIWidgetSprite:draw()
 	self.sprite:draw(self.parent:getPos(), self.parent.align / self.sprite.size, nil, nil, self.parent.angle, nil, self.parent:getAlpha(), nil, self.parent.blendMode)
 end
 
+
+function UIWidgetSprite:wheelmoved(y)
+	self.parent:setScrollPosRelative(y)
+end
+
 return UIWidgetSprite
+

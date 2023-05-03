@@ -13,7 +13,7 @@ function UIWidgetText:new(parent, text, font, align)
 
 	self.parent = parent
 
-	self.text = text
+	self.text = text or " "
 	self.textTmp = ""
 	self.font = _Game.resourceManager:getFont(font)
 	self.align = align and _ParseVec2(align) or Vec2(0.5, 0)

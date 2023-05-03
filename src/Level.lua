@@ -939,6 +939,7 @@ function Level:incrementBlitzMeter(amount, chain)
 		local additiveAmount = (infernoFrog and infernoFrog:getCurrentLevelData().additiveAmount) or 0
         self.shooter:getMultiSphere(-2, (3 + additiveAmount))
 		_Game:playSound("sound_events/hot_frog_activate.json")
+		_Game:spawnParticle("particles/hf_blast.json", self.shooter.pos)
 	end
 end
 
@@ -1038,9 +1039,27 @@ end
 
 
 ---Marks this level as completed and forgets its saved data.
+-- Currently, the xp / coins will be granted after the close button is clicked, but later on this will happen when the win box pops up.
+-- Grant some coins / xp that will be tweaked later
+
 function Level:win()
+
+	local xp_granted = 0 
+	local coins_granted = 0
+
+	-- only give xp / coins if the destroyed spheres is at least zero
+	if self.destroyedSpheres > 0 then
+		xp_granted = math.floor(((self.destroyedSpheres / 25)^0.4) * 200)
+		coins_granted = math.floor(((self.destroyedSpheres / 70)^0.75) * 300)
+	end
+
 	_Game:getCurrentProfile():winLevel(self.score)
 	_Game:getCurrentProfile():unsaveLevel()
+	_Game:getCurrentProfile():grantCurrency(coins_granted)
+	_Game:getCurrentProfile():grantXP(xp_granted)
+	local cur_level = _Game:getCurrentProfile():getLevel()
+
+	_Game:save()
 end
 
 

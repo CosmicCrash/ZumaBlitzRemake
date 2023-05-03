@@ -33,6 +33,8 @@ function UIWidget:new(name, data, parent)
 	self.align = data.align or Vec2()
 	self.layer = data.layer
 	self.alpha = data.alpha
+	self.scrollable = data.scrollable or false
+	self.scroll_pos = 0
 
 	self.animations = {in_ = nil, out = nil}
 	if data.animations then
@@ -224,6 +226,16 @@ function UIWidget:unclick()
 	end
 end
 
+function UIWidget:wheelmoved(y)
+	if self.active and self.widget and self.scrollable and self.widget.wheelmoved then  
+		self.widget:wheelmoved(y)
+	end
+
+	for childN, child in pairs(self.children) do
+		child:wheelmoved(y)
+	end
+end
+
 function UIWidget:keypressed(key)
 	if self.active and self.widget and self.widget.keypressed then self.widget:keypressed(key) end
 
@@ -341,7 +353,14 @@ function UIWidget:generateDrawData(layers, startN)
 			table.insert(layers[self:getLayer()], names)
 		end
 		if self.widget.type == "text" then
-			self.widget.textTmp = self.widget.text
+			if type(self.widget.text) == "number" then
+				self.widget.textTmp = tostring(self.widget.text)
+			elseif type(self.widget.text) == "string" then
+				self.widget.textTmp = self.widget.text
+			else 
+				self.widget.textTmp = ""
+			end
+
 		end
 	end
 end
@@ -388,6 +407,14 @@ function UIWidget:getPos()
 		return parentPos + self.pos
 	else
 		return self.pos
+	end
+end
+
+function UIWidget:setScrollPosRelative(y)
+	if self.parent and self.inheritPos and self.scrollable then
+		self.parent:setScrollPosRelative(y)
+	else
+		self.scroll_pos = self.scroll_pos + y
 	end
 end
 

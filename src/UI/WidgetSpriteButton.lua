@@ -21,6 +21,10 @@ function UIWidgetSpriteButton:new(parent, sprite)
 
 	self.sprite = _Game.resourceManager:getSprite(sprite)
 	self.size = self.sprite.frameSize
+	local statecount = #self.sprite.states
+	if statecount < 4 then
+		print ("WARNING: spriteButton does not have 4 states: " .. self.sprite.path)
+	end
 end
 
 function UIWidgetSpriteButton:click()

@@ -43,7 +43,7 @@ end
 
 ---Returns a quad object for use in drawing functions.
 ---@param state integer The state ID of this sprite.
----@param frame Vector2 The sprite to be obtained.
+---@param frame Vector2|integer The sprite to be obtained.
 ---@return love.Quad
 function Sprite:getFrame(state, frame)
 	--print(self.frames[(frame.x - 1) % self.frameCount.x + 1][(frame.y - 1) % self.frameCount.y + 1])
@@ -51,7 +51,27 @@ function Sprite:getFrame(state, frame)
 	--	for k2, v2 in pairs(v1) do print(k1, k2, v2) end
 	--end
 	local s = self.states[state]
-	return s.frames[(frame.x - 1) % s.frameCount.x + 1][(frame.y - 1) % s.frameCount.y + 1]
+	if s == nil then
+		-- should a sprite attempt to get a non existent state attempt to use the data from the first state instead.
+		print ("ERROR: Attempted to get non-existent state: " .. state .. " in file " .. self.path)
+		s = self.states[1]
+	end
+
+	-- FORK-SPECIFIC CODE: if a number is detected in frame, this is assumed to be frame # (starting at 1)
+	-- and we will convert to a vector instead.
+	local vec2_frame = {x=0, y=0}
+	if type(frame) == "number" then
+		frame = math.max(frame, 1) -- enforce min frame of 1
+		frame = math.min(frame, s.frameCount.x * s.frameCount.y) -- max frame is the number of frames is the x*y grid
+
+		vec2_frame.x = 1 + ((frame-1) % s.frameCount.x)
+		vec2_frame.y = 1 + (math.floor((frame-1) / s.frameCount.x))
+		vec2_frame.y = math.min(vec2_frame.y, s.frameCount.y) 
+	else
+		vec2_frame = frame
+	end
+
+	return s.frames[(vec2_frame.x - 1) % s.frameCount.x + 1][(vec2_frame.y - 1) % s.frameCount.y + 1]
 end
 
 

@@ -47,6 +47,45 @@
             },
             "alpha": 1,
             "children": {
+                "Text_Currency": {
+                    "inheritShow": true,
+                    "inheritHide": true,
+                    "type": "text",
+                    "pos": {
+                        "x": 47,
+                        "y": 30
+                    },
+                    "alpha": 1,
+                    "children": {},
+                    "animations": {},
+                    "sounds": {},
+                    "layer": "MenuControls",
+                    "font": "fonts/dialog_body.json",
+                    "align": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                "Text_Level": {
+                    "inheritShow": true,
+                    "inheritHide": true,
+                    "type": "text",
+                    "pos": {
+                        "x": 408,
+                        "y": 30
+                    },
+                    "alpha": 1,
+                    "children": {},
+                    "animations": {},
+                    "sounds": {},
+                    "layer": "MenuControls2",
+                    "font": "fonts/dialog_body2.json",
+                    "align": {
+                        "x": 0.5,
+                        "y": 0
+                    },
+                    "text": ""
+                },
                 "Button_Player": {
                     "inheritShow": true,
                     "inheritHide": true,
@@ -124,6 +163,38 @@
                         "y": 0
                     },
                     "text": "hi"
+                },
+                "Progress_XP": {
+					"inheritShow":true,
+					"inheritHide":true,
+                    "type": "spriteProgress",
+                    "pos": {
+                        "x": 378,
+                        "y": 10
+                    },
+                    "alpha": 1,
+                    "children": {},
+                    "animations": {},
+                    "sounds": {},
+                    "layer": "MenuControls",
+                    "sprite": "sprites/main/xp_circle.json",
+					"value": 0,
+                    "progressBarType": "circular"
+                },
+                "Progress_Star": {
+                    "inheritShow": true,
+                    "inheritHide": true,
+                    "type": "sprite",
+                    "pos": {
+                        "x": 380,
+                        "y": 12
+                    },
+                    "alpha": 1,
+                    "children": {},
+                    "animations": {},
+                    "sounds": {},
+                    "layer": "MenuControls",
+                    "sprite": "sprites/main/xp_star.json"
                 },
                 "Button_Start": {
                     "inheritShow": true,

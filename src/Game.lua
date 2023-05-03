@@ -287,6 +287,12 @@ function Game:mousereleased(x, y, button)
 end
 
 
+---Callback from `main.lua`.
+---@param x integer The X coordinate of mouse wheel movement.
+---@param y integer The Y coordinate of mouse wheel movement.
+function Game:wheelmoved(x, y)
+	self.uiManager:wheelmoved(x, y)
+end
 
 ---Callback from `main.lua`.
 ---@param key string The pressed key code.

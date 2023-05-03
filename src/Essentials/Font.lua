@@ -48,7 +48,7 @@ function Font:getCharacter(character)
 			_Log:printt("Font", "ERROR: No character " .. tostring(character) .. " was found in font " .. self.path)
 			self.reportedCharacters[character] = true
 		end
-		return self.characters["0"]
+		return self.characters[" "]
 	end
 end
 

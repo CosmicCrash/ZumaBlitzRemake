@@ -12,6 +12,17 @@ local Profile = class:derive("Profile")
 function Profile:new(data, name)
 	self.name = name
 
+	-- unique identifier used in score submissions and cloud data.
+	self.uniqueid = math.random(1,4294967295)
+	self.is_local = true
+	self.is_discord_user = false -- also used to determine whether to display the discord friends leaderboard and other things.
+
+	-- progression data saved in the server or locally.
+	self.xplevel = 1
+	self.xp = 0
+	self.currency = 0
+
+	-- initalize player data. If online account, data will be loaded from cloud instead.
 	-- TODO: Consider extracting this variable and associated functions to ProfileSession.lua
 	self.session = nil
 	self.levels = {}
@@ -335,7 +346,35 @@ function Profile:grantCoin()
 	_Game.uiManager:executeCallback("newCoin")
 end
 
+---Gives currency.
+function Profile:grantCurrency(amount)
+	self.currency = self.currency + amount
+end
 
+---Gives xp. XP cannot go below zero.
+function Profile:grantXP(amount)
+	self.xp = self.xp + amount
+	if self.xp < 0 then self.xp = 0 end
+end
+
+
+---Get number of coins
+function Profile:getCurrency()
+	return self.currency
+end
+
+---Calculates the level from XP. Normally 55 more per level, but it will be 250 here to adjust for xp scaling.
+---Fractional values are used to determine the length of the XP bar.
+function Profile:getLevel()
+	if self.xp <= 0 then return 1 end
+
+	local efflevel = (math.sqrt((8 * self.xp / 250)+1)-1)*0.5
+
+	-- level cap
+	if efflevel > 500 then efflevel = 500 end
+
+	return efflevel
+end
 
 -- Lives
 
@@ -746,7 +785,11 @@ function Profile:serialize()
         equippedFood = self.equippedFood,
         powerCatalog = self.powerCatalog,
 		foodInventory = self.foodInventory,
-		ultimatelySatisfyingMode = self.ultimatelySatisfyingMode
+		ultimatelySatisfyingMode = self.ultimatelySatisfyingMode,
+		xplevel = self.xplevel,
+		xp = self.xp,
+		uniqueid = self.uniqueid,
+		currency = self.currency
 	}
 	return t
 end
@@ -769,6 +812,11 @@ function Profile:deserialize(t)
 	self.foodInventory = t.foodInventory
 	self.equippedFood = t.equippedFood
     self.ultimatelySatisfyingMode = t.ultimatelySatisfyingMode
+	self.xplevel = t.xplevel
+	self.xp = t.xp
+	self.uniqueid = t.uniqueid
+	self.currency = t.currency
+	self:migration()
 
 	-- Equipped Powers routines
     local hash = {}
@@ -788,6 +836,27 @@ function Profile:deserialize(t)
             table.remove(self.equippedPowers, i)
 		end
 	end
+end
+
+---Migrate older savefiles to current version used to populate tables when they didn't exist in older savefiles, etc.
+function Profile:migration()
+	if self.xp == nil then
+		print ("WARNING: no xp detected in savefile, resetting xp values")
+		self.xp = 0
+		self.xplevel = 1
+	end
+
+	if self.currency == nil then
+		print ("WARNING: no coins detected in savefile, resetting coins values")
+		self.currency = 0
+	end
+
+	if self.uniqueid == nil then
+		print ("WARNING: no uniqueid detected in savefile, generating new uniqueid")
+		self.uniqueid = math.random(1,4294967295)
+	end
+
+
 end
 
 

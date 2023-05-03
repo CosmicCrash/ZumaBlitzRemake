@@ -276,6 +276,9 @@ function c.splashEnd(f)
   c.Main_Text_PlayerH = f.getWidgetN("root/Main/Menu/Text_PlayerH")
   c.Main_Text_Version = f.getWidgetN("root/Main/Menu/Text_Version")
   c.Main_Text_PlayerItems = f.getWidgetN("root/Main/Menu/Text_PlayerItems")
+  c.Main_Text_Level = f.getWidgetN("root/Main/Menu/Text_Level")
+  c.Main_Text_Currency = f.getWidgetN("root/Main/Menu/Text_Currency")
+  c.Main_Progress_XP = f.getWidgetN("root/Main/Menu/Progress_XP")
   c.Menu_Continue_Text_Stage = f.getWidgetN("root/Menu_Continue/Frame/Text_Stage")
   c.Menu_Continue_Text_Score = f.getWidgetN("root/Menu_Continue/Frame/Text_Score")
   c.Menu_StageSelect_Text_StageName = f.getWidgetN("root/Menu_StageSelect/Frame/StageMap/Text_StageName")
@@ -1037,8 +1040,15 @@ function c.tick(f)
   -- Update texts
   if c.Banner_StageMap then
     local player = ""
+    local playerlevel = 0
+    local playercurrency = 0 
+    local player_progress_bar = 0
+
     if f.profileGetExists() then
       player = f.profileGetName()
+      playerlevel = f.profileGetPlayerLevel()
+      playercurrency = f.profileGetPlayerCurrency()
+      
 
       if f.profileGetSession() then
         local coins = tostring(f.profileGetCoins())
@@ -1115,6 +1125,11 @@ function c.tick(f)
     local newLevelMapName = f.configGetMapData(newLevelData.map).name
     local newStageName = c.stageNames[c.newGameStage]
 
+
+    -- update widget to get current coins / values
+    c.Main_Text_Level.widget.text = math.floor(playerlevel)
+    c.Main_Text_Currency.widget.text = _NumStr(playercurrency)
+    c.Main_Progress_XP.widget.valueData = playerlevel % 1
 
     c.Main_Text_PlayerE.widget.text = player
     c.Main_Text_Version.widget.text = "Running on OpenSMCE " .. _VERSION

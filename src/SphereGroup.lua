@@ -759,7 +759,21 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
     local gapbonus = 0
     if #gaps > 0 then
 		local largestGap = math.max(unpack(gaps))
-		gapbonus = _MathRoundDown((10500 * (1.5^-largestGap)+500), 10) * #gaps
+
+		-- adjustment to largest gap size
+		largestGap = largestGap - 64
+		if largestGap < 0 then
+			largestGap = 0
+		end
+
+		-- kroakatoa sep 2012 gap algo
+		--gapbonus = math.max((((300 - largestGap) / 300))^2 * 10000, 50)
+		--gapbonus = _MathRoundDown(gapbonus, 10) * #gaps
+
+		-- regular gap algo
+		gapbonus = math.max(((300 - largestGap) / 300) * 10000, 50)
+		gapbonus = _MathRoundDown(gapbonus, 10) * #gaps
+
 		score = score + gapbonus
     end
 

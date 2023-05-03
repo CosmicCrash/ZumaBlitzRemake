@@ -22,6 +22,8 @@ function ParticleSpawner:new(manager, packet, data)
 	self.spawnMax = data.spawnMax
 	self.pieceCount = 0
 	self.spawnDelay = data.spawnDelay
+	self.spawnDelayCount = math.max(data.spawnDelayCount or 1, 1)
+
 	self.particleData = data.particleData
 
 	self.spawnNext = self.spawnDelay
@@ -46,7 +48,8 @@ function ParticleSpawner:update(dt)
 	if self.spawnNext then
 		self.spawnNext = self.spawnNext - dt
 		while self.spawnNext <= 0 and self.pieceCount < self.spawnMax do
-			self:spawnPiece()
+			for i = 1, self.spawnDelayCount do self:spawnPiece() end
+			--self:spawnPiece()
 			self.spawnNext = self.spawnNext + self.spawnDelay
 		end
 	end
