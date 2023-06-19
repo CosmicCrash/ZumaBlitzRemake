@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Main class for a Game. Handles everything the Game has to do.
 ---@class Game
 ---@overload fun(name):Game
 local Game = class:derive("Game")
@@ -40,7 +41,7 @@ function Game:new(name)
 
 
 	-- revert to original font size
-	love.graphics.setFont(love.graphics.newFont("assets/dejavusans.ttf"))
+	love.graphics.setFont(_LoadFont("assets/dejavusans.ttf"))
 end
 
 

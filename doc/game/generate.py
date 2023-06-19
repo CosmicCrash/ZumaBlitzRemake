@@ -1,3 +1,154 @@
+import json
+
+
+
+def convert_schema_type(schema):
+	schema_type_assoc = {
+		"integer": "number",
+		"array": "list",
+		"Color*": "Color",
+		"Vector2*": "Vector2",
+		"ExprVector2*": "Expression|Vector2"
+	}
+	
+	if "anyOf" in schema:
+		types = []
+		for child in schema["anyOf"]:
+			type = convert_schema_type(child)
+			if not type in types:
+				types.append(type)
+		type = "|".join(types)
+	elif "$ref" in schema:
+		ref_path = schema["$ref"].split("/")
+		if len(ref_path) > 1 and ref_path[-2] == "_structures":
+			type = ref_path[-1].split(".")[0] + "*"
+		else:
+			type = "object"
+	elif "const" in schema or "enum" in schema:
+		type = "string"
+	else:
+		type = schema["type"]
+	if type in schema_type_assoc:
+		type = schema_type_assoc[type]
+
+	return type
+
+
+
+def convert_schema(schema, page, references, name = "", indent = 1):
+	if name != "":
+		name += " "
+
+	type = convert_schema_type(schema)
+	
+	description = schema["description"].split("\n")
+	if "markdownDescription" in schema:
+		description = schema["markdownDescription"].split("\n")
+	if "const" in schema:
+		# Overwrite the description and just enter the only valid value instead.
+		description = ["<b><i>\"" + schema["const"] + "\"</i></b>"]
+	if "oneOf" in schema:
+		# Prepare for enum generation.
+		if len(description) == 1:
+			description[0] += " Available values are:"
+		else:
+			description.append("Available values are:")
+	if "$ref" in schema:
+		ref_path = schema["$ref"].split("/")
+		# If we're referencing to a full file, and not just a sturcture, add a link in the document.
+		if len(ref_path) <= 1 or ref_path[-2] != "_structures":
+			reference = ref_path[-1].split(".")[0]
+			if not reference in references:
+				message = "More info... uhh dead link :( Fix me!"
+			elif page == references[reference]:
+				# The reference is located on the current page.
+				message = "<a href=\"#" + reference + "\">More info below.</a>"
+			else:
+				# The reference is located on another page.
+				message = "<a href=\"" + references[reference] + ".html#" + reference + "\">More info here.</a>"
+			if len(description) == 1:
+				description[0] += " " + message
+			else:
+				description.append(message)
+	
+	# Add description. Apply formatting and multiline changes.
+	for i in range(len(description)):
+		line = ""
+		line_segments = description[i].split("`")
+		for j in range(len(line_segments)):
+			if j % 2 == 0:
+				line += line_segments[j]
+			else:
+				line += "<i>" + line_segments[j] + "</i>"
+
+		# Second line and beyond gets an extra indent.
+		if i == 0:
+			output = "D" + "\t" * indent + "- " + name + "(" + type + ") - " + line + "\n"
+		else:
+			output += "D" + "\t" * (indent + 1) + "R " + line + "<br/>\n"
+	
+	# Describe enums.
+	if "oneOf" in schema:
+		list_indent = indent
+		if len(description) > 1:
+			list_indent += 1
+		output += "D" + "\t" * list_indent + "R <ol>\n"
+		for value in schema["oneOf"]:
+			output += "D" + "\t" * list_indent + "R <li><b>\"" + value["const"] + "\"</b> - " + value["description"] + "</li>\n"
+		output += "D" + "\t" * list_indent + "R </ol>\n"
+
+	properties_root = None
+	if "properties" in schema:
+		properties_root = schema
+	elif "patternProperties" in schema:
+		properties_root = schema["patternProperties"][list(schema["patternProperties"].keys())[0]]
+	
+	if properties_root != None:
+		for key in properties_root["properties"]:
+			if key == "$schema":
+				continue
+			key_data = properties_root["properties"][key]
+			if not key in properties_root["required"]:
+				key += "*"
+			output += convert_schema(key_data, page, references, key, indent + 1)
+	
+	if "items" in schema:
+		output += convert_schema(schema["items"], page, references, "", indent + 1)
+	
+	return output
+
+
+
+def convert_schema_enum(schema, page, references):
+	output = ""
+
+	for i in range(len(schema["allOf"])):
+		if i == 0:
+			continue
+		else:
+			output += "H3\t<i>" + schema["allOf"][i]["if"]["properties"]["type"]["const"] + "</i>\n"
+			output += "P\t" + schema["allOf"][i]["if"]["properties"]["type"]["description"] + "\n"
+			enum_data = {
+				"type": schema["type"],
+				"description": schema["description"],
+				"properties": {},
+				"required": schema["allOf"][i]["if"]["required"]
+			}
+			for property in schema["allOf"][i]["then"]["properties"]:
+				# Copy all properties from the "then" section, if it has a True value then borrow from the "if" section.
+				value = schema["allOf"][i]["then"]["properties"][property]
+				if value == True:
+					value = schema["allOf"][i]["if"]["properties"][property]
+				enum_data["properties"][property] = value
+			if "required" in schema["allOf"][i]["then"]:
+				enum_data["required"] += schema["allOf"][i]["then"]["required"]
+			
+			output += convert_schema(enum_data, page, references)
+		
+	return output
+
+
+
 def main():
 	file = open("data.txt", "r")
 	contents = file.read()
@@ -10,14 +161,19 @@ def main():
 		"ColorPalette*": "str_palette",
 		"Particle*": "str_particle",
 		"SoundEvent*": "str_sound",
+		"Music*": "str_music",
 		"Sprite*": "str_sprite",
-		"Expression": "expression"
+		"CollectibleGenerator*": "str_collectible_generator",
+		"Expression": "expression",
+		"Vector2": "vector2"
 	}
 	
 	
 	
+	# Pass 1: Gather page and reference names
 	page_paths = []
 	page_names = []
+	reference_names = {} # reference -> page name
 	
 	for line in data:
 		line = line.split("\t")
@@ -26,9 +182,40 @@ def main():
 			page_paths.append(line[1])
 		elif line[0] == "N":
 			page_names.append(line[1])
+		elif line[0] == "H2":
+			subline = line[1].split(" | ")
+			if len(subline) > 1:
+				reference_names[subline[1]] = page_paths[-1]
+	
+
+
+	# Pass 2: Generate data from schemas
+	new_data = []
+	current_page = ""
+
+	for line in data:
+		orig_line = line
+		line = line.split("\t")
+
+		if line[0] == "F":
+			current_page = line[1]
+		
+		if line[0] == "DI" or line[0] == "DIE":
+			file = open(line[1], "r")
+			schema = json.loads(file.read())
+			file.close()
+			print(schema)
+			converted = convert_schema(schema, current_page, reference_names) if line[0] == "DI" else convert_schema_enum(schema, current_page, reference_names)
+			print(converted)
+			new_data += converted.split("\n")
+		else:
+			new_data.append(orig_line)
+	
+	data = new_data
 	
 	
 	
+	# Pass 3: Actual processing
 	page_name = ""
 	page_content = ""
 	
@@ -111,13 +298,13 @@ def main():
 			
 			l = line[indent]
 			if l[0] == "-":
-				s = l.split(" |")
+				s = l[1:].split(" - ")
 				
 				description = s[1]
 				
 				s = s[0].split(" (")
 				
-				name = s[0][2:]
+				name = s[0][1:]
 				optional = len(name) > 0 and name[-1] == "*"
 				if optional:
 					name = name[:-1]
@@ -154,7 +341,11 @@ def main():
 			page_content += "<h1>" + line[1] + "</h1>"
 		
 		elif line[0] == "H2":
-			page_content += "<h2>" + line[1] + "</h2>"
+			subline = line[1].split(" | ")
+			if len(subline) == 1:
+				page_content += "<h2>" + subline[0] + "</h2>"
+			else:
+				page_content += "<h2 id=\"" + subline[1] + "\">" + subline[0] + "</h2>"
 		
 		elif line[0] == "H3":
 			page_content += "<h3>" + line[1] + "</h3>"

@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Handles the Game's config files.
 ---@class ConfigManager
 ---@overload fun():ConfigManager
 local ConfigManager = class:derive("ConfigManager")
@@ -73,12 +74,16 @@ function ConfigManager:new()
 	for i, path in ipairs(levelList) do
 		local id = tonumber(string.sub(path, 7, -6))
 		_Log:printt("ConfigManager", "Loading level " .. tostring(id) .. ", " .. tostring(path))
-		local level = _LoadJson(_ParsePath("config/levels/" .. path))
-		self.levels[id] = level
-		-- Load map data only if it hasn't been loaded yet.
-		if not self.maps[level.map] then
-			_Log:printt("ConfigManager", "Loading map " .. level.map)
-			self.maps[level.map] = _LoadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
+		if not id then
+			_Log:printt("ConfigManager", "WARNING: Skipped - illegal name!")
+		else
+			local level = _LoadJson(_ParsePath("config/levels/" .. path))
+			self.levels[id] = level
+			-- Load map data only if it hasn't been loaded yet.
+			if not self.maps[level.map] then
+				_Log:printt("ConfigManager", "Loading map " .. level.map)
+				self.maps[level.map] = _LoadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
+			end
 		end
 	end
 end

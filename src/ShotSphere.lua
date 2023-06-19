@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a Sphere which has been shot from the Shooter and is flying on the screen until it finds a Sphere Group on its way.
 ---@class ShotSphere
 ---@overload fun(deserializationTable, shooter, pos, angle, color, speed):ShotSphere
 local ShotSphere = class:derive("ShotSphere")
@@ -78,7 +79,7 @@ function ShotSphere:moveStep()
 				-- We've traversed a gap.
 				if not self:didTraverseGap(group) then
 					table.insert(self.gapsTraversed, {size = size, group = group})
-					local pos = path:getPos(offset)
+					--local pos = path:getPos(offset)
 					--_Game:spawnParticle("particles/collapse_vise.json", pos)
 					--_Debug.console:print(size)
 				end

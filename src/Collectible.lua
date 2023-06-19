@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents an item which can be collected by the Shooter, such as coins, powerups or gems.
 ---@class Collectible
 ---@overload fun(deserializationTable, pos, name):Collectible
 local Collectible = class:derive("Collectible")
@@ -42,7 +43,7 @@ function Collectible:update(dt)
 	self.pos = self.pos + self.speed * dt
 
 	-- catching/bouncing/destroying
-	if _Game.session.level.shooter:isPosCatchable(self.pos) or (_Game.session.level.netTime > 0 and self.pos.y >= 550) then
+	if _Game.session.level.shooter:isPosCatchable(self.pos) or (_Game.session.level.netTime > 0 and self.pos.y >= _Game.configManager.gameplay.net.posY) then
 		self:catch()
 	end
 	if self.pos.x < 10 then -- left
