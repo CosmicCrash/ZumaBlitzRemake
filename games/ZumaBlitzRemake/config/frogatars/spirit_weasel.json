@@ -4,9 +4,11 @@
     "isMonument": true,
     "shooterConfig": "spirit_weasel",
     "effects": {
-        "cannonsEnabled": true,
+        "cannonsEnabled": 1,
         "cannonsSpread": 12,
-        "cannonsPointsBase": 400
+        "cannonsPointsBase": 400,
+        "spiritBlastEnabled": 1,
+        "spiritBlastColor": 2
     },
     "spiritBlastColor": 2
 }

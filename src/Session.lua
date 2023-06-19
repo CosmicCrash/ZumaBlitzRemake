@@ -80,14 +80,6 @@ function Session:levelSave()
 	self.level = nil
 end
 
----Destroys this level and triggers a `gameOver` callback in the UI script.
-function Session:terminate()
-	self.level = nil
-	_Game.uiManager:executeCallback("gameOver")
-end
-
-
-
 ---Draws itself... It's actually just the level, from which all its components are drawn.
 function Session:draw()
 	if self.level then
@@ -133,6 +125,7 @@ function Session:destroyFunction(f, scorePos, scoreFont, noRewards)
 						sphereGroup:destroySphere(l)
 						if not noRewards then
 							score = score + 10
+							-- TODO: Adjust score based on source (chain blast, hot frog, bomb, spirit shot, last hurrah)
 						end
 					end
 				end

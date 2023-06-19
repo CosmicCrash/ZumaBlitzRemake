@@ -6,11 +6,17 @@
     "destroyParticle": "particles/collapse_ball_4.json",
     "powerupSprites": {
         "timeball": "sprites/game/time_ball_4.json",
-        "multiplier": "sprites/game/multiplier_ball_4.json"
+        "multiplier": "sprites/game/multiplier_ball_4.json",
+        "bombs": "sprites/game/bombs_ball_4.json",
+        "cannons": "sprites/game/cannons_ball_4.json",
+        "colornuke": "sprites/game/colornuke_ball_4.json"
     },
     "colorblindPowerupSprites": {
         "timeball": "sprites/game/time_ball_4_cb.json",
-        "multiplier": "sprites/game/multiplier_ball_4_cb.json"
+        "multiplier": "sprites/game/multiplier_ball_4_cb.json",
+        "bombs": "sprites/game/bombs_ball_4_cb.json",
+        "cannons": "sprites/game/cannons_ball_4_cb.json",
+        "colornuke": "sprites/game/colornuke_ball_4_cb.json"
     },
     "color": {
         "r": 0,

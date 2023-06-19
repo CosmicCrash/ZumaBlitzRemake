@@ -113,24 +113,6 @@
                     },
                     "text": ""
                 },
-                "Psys_NewLife": {
-					"inheritShow":false,
-					"inheritHide":false,
-					"type": "particle",
-					"pos": {
-						"x": 61,
-						"y": 7
-					},
-					"alpha": 1,
-					"children": {},
-					"animations": {},
-					"sounds":{
-						"in_":"sound_events/ui_extra_life.json"
-					},
-					"layer": "HudControls3",
-					"path": "particles/extra_life.json",
-					"hideDelay":0
-				},
                 "Progress": {
 					"inheritShow":true,
 					"inheritHide":true,
@@ -225,11 +207,9 @@
             },
             "sounds": {}
         },
-		"Banner_GameOver":"ui/banner_gameover.json",
 		"Banner_HighScore":"ui/banner_highscore.json",
 		"Banner_Intro":"ui/banner_intro.json",
 		"Banner_LevelComplete":"ui/banner_levelcomplete.json",
-		"Banner_LevelLose":"ui/banner_levellose.json",
 		"Banner_Paused":"ui/banner_paused.json",
 		"Banner_QuitBackground":"ui/banner_quitbackground.json",
 		"Banner_StageMap":"ui/banner_stagemap.json",

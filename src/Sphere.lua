@@ -199,10 +199,11 @@ end
 
 
 
----Adds a powerup to the current Sphere.
+---Adds a powerup to the current Sphere. If duration is not defined, this value is 20.
 ---@param powerup string
 ---@param noSound boolean?
-function Sphere:addPowerup(powerup, noSound)
+---@param duration number?
+function Sphere:addPowerup(powerup, noSound, duration)
     if not powerup then
 		_Log:printt("Sphere", "No powerup defined when calling Sphere:addPowerup()")
 		return
@@ -212,7 +213,8 @@ function Sphere:addPowerup(powerup, noSound)
 		if not noSound then
 			_Game:playSound("sound_events/spawn_powerup_"..self.powerup..".json")
 		end
-        self.entity:setPowerup(powerup)
+		self.entity:setPowerup(powerup)
+		self.powerupTimeout = duration or 20
     end
 end
 
@@ -286,10 +288,10 @@ function Sphere:deleteVisually(ghostTime, crushed)
     if self.powerup and not (self.map.level.finish or self.map.level.lost) then
         local effectTable = {
             timeball = function()
-                local secs = 5
-				local sandsOfTime = _Game:getCurrentProfile():getEquippedPower("sands_of_time")
-				if sandsOfTime then
-					secs = secs + sandsOfTime:getCurrentLevelData().additiveAmount
+                local secs = self.map.level:getParameter("timeBallsTimeBonus")
+
+				if self.map.level.chronoBallsMatched % self.map.level:getParameter("timeBallsExtraBonusCount") == 0 then
+					secs = secs + self.map.level:getParameter("timeBallsExtraBonusTime")
 				end
 				
 				self.map.level:applyEffect({type = "addTime", amount = secs})
@@ -310,20 +312,19 @@ function Sphere:deleteVisually(ghostTime, crushed)
 					"fonts/score0.json"
 				)
 			end,
-			-- TODO: Add cannon effect
-            cannon = function()
-				self.map.level.bombsMatched = self.map.level.bombsMatched + 1
-				
+            cannons = function()
+				self.map.level.cannonsMatched = self.map.level.cannonsMatched + 1				
+				self.map.level.shooter:getMultiSphere(-6, 1)
+
 			end,
 			-- TODO: Add bomb effect
-            bomb = function()
-				self.map.level.cannonsMatched = self.map.level.cannonsMatched + 1
-				
+            bombs = function()
+				self.map.level.bombsMatched = self.map.level.bombsMatched + 1				
 			end,
 			-- TODO: Add color nuke effect
             colornuke = function()
 				self.map.level.colorNukesMatched = self.map.level.colorNukesMatched + 1
-				
+
 			end
 		}
 		effectTable[self.powerup]()

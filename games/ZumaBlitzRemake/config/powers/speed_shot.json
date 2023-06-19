@@ -2,8 +2,40 @@
     "displayName": "Speed Shot",
     "type": "shotSpeedMultiplier",
     "levels": [
-        {"additiveMultiplier": 0.1},
-        {"additiveMultiplier": 0.2, "speedBonusMultiplier": 1.6},
-        {"additiveMultiplier": 0.3, "speedBonusMultiplier": 3.5}
+        {
+            "internalName": "15",
+            "displayName": "Speed Shot",
+            "description": "Your frog shoots every ball faster.",
+            "sprite": "",
+            "cost": 500,
+            "effects":
+            {
+                "shotSpeedMultiplier": 0.1
+            }
+        },
+        {
+            "internalName": "16",
+            "displayName": "Super Speed",
+            "description": "Your frog shoots even faster. Speed bonus x1.6",
+            "sprite": "",
+            "cost": 1000,
+            "effects":
+            {
+                "shotSpeedMultiplier": 0.2,
+                "speedBonusPointsBase": 6
+            }
+        },
+        {
+            "internalName": "17",
+            "displayName": "Warp Speed",
+            "description": "Your frog shoots at maximum speed. Speed bonus x3.5",
+            "sprite": "",
+            "cost": 2000,
+            "effects":
+            {
+                "shotSpeedMultiplier": 0.3,
+                "speedBonusPointsBase": 25
+            }
+        }
     ]
 }

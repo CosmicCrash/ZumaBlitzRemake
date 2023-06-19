@@ -1,0 +1,21 @@
+{
+    "path": "images/game/ball_2_powerups.png",
+    "frame_size": {
+        "x": 29,
+        "y": 29
+    },
+    "states": [
+        {
+            "pos": {
+                "x": 58,
+                "y": 0
+            },
+            "frames": {
+                "x": 1,
+                "y": 1
+            }
+        }
+    ],
+    "internal": false,
+    "batched": false
+}

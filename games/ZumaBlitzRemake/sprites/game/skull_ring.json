@@ -1,0 +1,21 @@
+{
+    "path": "images/game/InfernoRING.png",
+    "frame_size": {
+        "x": 59,
+        "y": 59
+    },
+    "states": [
+        {
+            "pos": {
+                "x": 0,
+                "y": 0
+            },
+            "frames": {
+                "x": 6,
+                "y": 6
+            }
+        }
+    ],
+    "internal": false,
+    "batched": false
+}

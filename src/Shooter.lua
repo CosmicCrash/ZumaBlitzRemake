@@ -661,25 +661,28 @@ function Shooter:getShootingSpeed()
     elseif self.speedShotTime > 0 then
         return self.speedShotSpeed
     end
-    local speedShot = _Game:getCurrentProfile():getEquippedPower("speed_shot")
-    local powerMultiplier = (speedShot and speedShot:getCurrentLevelData().additiveMultiplier) or 0
 
-    local foodSpeedShot_add = _MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "shotSpeedBase") or 0
-    local foodSpeedShot_mult = _MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "shotSpeedMultiplier") or 0
+    local foodSpeedShot_add = _Game.session.level:getParameter("shotSpeedBase")
+    local foodSpeedShot_mult = _Game.session.level:getParameter("shotSpeedMultiplier")
 
-    local frogatarSpeedShot = (_Game:getCurrentProfile():getFrogatarEffects().shotSpeedMultiplier) or 0
+    -- force the shot speed multiplier to be a minimum of 10% 
+    foodSpeedShot_mult = math.max(foodSpeedShot_mult, 0.1)
+
     -- TODO: What's the order of speed shot multipliers?
 
     -- modify the speed bonus based on the blitz meter
     -- Food will affect this by an amount. 
     
-    local foodSpeedBonusVel_add = _MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "speedUpShotsTotalIncrease") or 0
-    local speedBonusShotSpeed = math.max(_Game.session.level.blitzMeter - 0.5,0) * (1600 + foodSpeedBonusVel_add*2)
+    -- Shot speed at 100% hot frog meter is 180% nomal shot speed, adjusted by food effect 
+    local foodSpeedBonusVel_add = _Game.session.level:getParameter("speedUpShotsTotalIncrease")
+    local speedBonusShotSpeed = math.max(_Game.session.level.blitzMeter - 0.5,0) * ((self.config.shootSpeed * 1.6) + foodSpeedBonusVel_add)
 
-    local finalSpeed =  self.config.shootSpeed + (self.config.shootSpeed * powerMultiplier) + foodSpeedShot_add + (self.config.shootSpeed * frogatarSpeedShot) + speedBonusShotSpeed
-    finalSpeed = finalSpeed * (1 + foodSpeedShot_mult)
+    local finalSpeed =  self.config.shootSpeed + foodSpeedShot_add + speedBonusShotSpeed
+    finalSpeed = finalSpeed * (foodSpeedShot_mult)
 
-    -- _Log:printt("final speed", "-> " ..  finalSpeed)
+    --print("final speed", "-> " ..  finalSpeed)
+
+
 
     -- Would it also be ideal to set a max speed bonus cap?
     finalSpeed = math.min(finalSpeed, 2000)

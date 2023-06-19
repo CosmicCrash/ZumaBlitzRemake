@@ -5,7 +5,10 @@
     "destroyParticle": "particles/collapse_ball_1.json",
     "powerupSprites": {
         "timeball": "sprites/game/time_ball_1.json",
-        "multiplier": "sprites/game/multiplier_ball_1.json"
+        "multiplier": "sprites/game/multiplier_ball_1.json",
+        "bombs": "sprites/game/bombs_ball_1.json",
+        "cannons": "sprites/game/cannons_ball_1.json",
+        "colornuke": "sprites/game/colornuke_ball_1.json"
     },
     "color": {
         "r": 0,

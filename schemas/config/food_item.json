@@ -620,7 +620,7 @@
                     "type": "number",
                     "description": "Increases the score gained from each ball destroyed from a spirit blast."
                 },
-                "startingTime": {
+                "extraStartingTime": {
                     "type": "number",
                     "description": "Increases starting time (in seconds)."
                 },

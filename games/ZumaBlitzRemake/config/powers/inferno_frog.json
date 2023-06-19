@@ -2,7 +2,27 @@
     "displayName": "Inferno Frog",
     "type": "hotFrogShotModifier",
     "levels": [
-        {"additiveAmount": 1},
-        {"additiveAmount": 2}
+        {
+            "internalName": "7",
+            "displayName": "Inferno Frog",
+            "description": "Hot Frog shoots an extra fireball.",
+            "sprite": "",
+            "cost": 750,
+            "effects":
+            {
+                "hotFrogShots": 1
+            }
+        },
+        {
+            "internalName": "8",
+            "displayName": "Sun Frog",
+            "description": "Hot Frog shoots two extra fireballs.",
+            "sprite": "",
+            "cost": 1500,
+            "effects":
+            {
+                "hotFrogShots": 2
+            }
+        }
     ]
 }

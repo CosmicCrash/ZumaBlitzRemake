@@ -3,8 +3,41 @@
     "type": "addPowerup",
     "powerup": "colorNuke",
     "levels": [
-        {"frequency": 20},
-        {"frequency": 16},
-        {"targetBothCurves": true}
+        {
+            "internalName": "12",
+            "displayName": "Color Nuke",
+            "description": "Clear curve of all balls of one color",
+            "sprite": "",
+            "cost": 1500,
+            "effects":
+            {
+                "colorNukeEnabled": 1
+            }
+        },
+        {
+            "internalName": "13",
+            "displayName": "Blue Color Nuke",
+            "description": "You get more lasers in a game.",
+            "sprite": "",
+            "cost": 3000,
+            "effects":
+            {
+                "colorNukeEnabled": 1,
+                "colorNukeFrequencyBase": -3
+            }
+        },
+        {
+            "internalName": "14",
+            "displayName": "Wide Color Nuke",
+            "description": "Your laser zaps one color off BOTH curves",
+            "sprite": "",
+            "cost": 4000,
+            "effects":
+            {
+                "colorNukeEnabled": 1,
+                "colorNukeFrequencyBase": -3,
+                "colorNukeCurveCount": 1
+            }
+        }
     ]
 }

@@ -19,7 +19,7 @@ function Target:new(spritePath, pos, isFreeSpin)
     self.isFreeSpin = isFreeSpin -- not used atm
     self.delQueue = false
 
-    self.duration = 10
+    self.duration = _Game.session.level:getParameter("fruitLifetime")
 end
 
 
@@ -28,11 +28,7 @@ end
 ---@param dt number Delta time in seconds.
 function Target:update(dt)
     if _Game:levelExists() and _Game.session.level.target then
-        if not _Game:getCurrentProfile():getFrogatarEffects().fruitInfiniteLifetime then
-            -- don't tick down if we're using spirit eagle
-            -- src: http://bchantech.dreamcrafter.com/zumablitz/spiritanimals.php
-            self.duration = self.duration - dt
-        end
+        self.duration = self.duration - dt
         if self.duration < 0 then
             self:destroy()
             _Game:playSound("sound_events/target_despawn.json")
@@ -53,13 +49,15 @@ end
 function Target:onShot()
     self:destroy()
     _Game:playSound("sound_events/target_hit.json")
-    _Game.session.level:grantScore(_Game.session.level.targetHitScore)
-    local shouldGiveOneSecond = _MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "targetsGiveOneSecond")
-	if shouldGiveOneSecond then
-        _Game.session.level:applyEffect({type = "addTime", amount = 1})
-    end
+    local fruitRoundingValue = math.max(math.floor(_Game.session.level:getParameter("fruitRoundingValue")), 1)
+    local fruitScoreRounded = _MathRoundUp(_Game.session.level.targetHitScore, fruitRoundingValue)
+    _Game.session.level:grantScore(fruitScoreRounded)
+
+    local bonusTime = _Game.session.level:getParameter("fruitTicksAdded")
+    _Game.session.level:applyEffect({type = "addTime", amount = bonusTime})
+
     _Game.session.level:spawnFloatingText(
-        string.format("BONUS\n+%s", _NumStr(_Game.session.level.targetHitScore * _Game.session.level.multiplier)),
+        string.format("BONUS\n+%s", _NumStr(fruitScoreRounded * _Game.session.level.multiplier)),
         self.pos,
         "fonts/score0.json"
     )
@@ -67,12 +65,20 @@ function Target:onShot()
     -- increment stats
     _Game.session.level.fruitScore = _Game.session.level.fruitScore + (_Game.session.level.targetHitScore * _Game.session.level.multiplier)
 
-    -- Activate Hot Frog if we're using the Spirit Turtle
-    if _Game:getCurrentProfile():getFrogatarEffects().fruitsActivateHotFrog then
-        _Game.session.level:incrementBlitzMeter(1, true)
-    end
+    local incrementAmount = _Game.session.level:getParameter("hotFrogFruitInc") / _Game.session.level:getParameter("hotFrogGoal")
+    incrementAmount = math.min(math.max(incrementAmount, 0), 1)
+    _Game.session.level:incrementBlitzMeter(incrementAmount, true)
 
     _Game.session.level.targets = _Game.session.level.targets + 1
+    _Game.session.level.fruitCollected = _Game.session.level.fruitCollected + 1
+
+    -- apply that multiplier effect with cap and rounding
+    local fruitPointsMultiplier = 1 + _Game.session.level:getParameter("fruitFactor")
+    local fruitCap = math.floor(_Game.session.level:getParameter("fruitCap"))
+
+    if _Game.session.level.fruitCollected <= fruitCap then
+        _Game.session.level.targetHitScore = _Game.session.level.targetHitScore * fruitPointsMultiplier
+    end
 end
 
 

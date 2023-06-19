@@ -2,8 +2,38 @@
     "displayName": "Sands of Time",
     "type": "timeBallAmount",
     "levels": [
-        {"additiveAmount": 1},
-        {"additiveAmount": 2},
-        {"additiveAmount": 3}
+        {
+            "internalName": "26",
+            "displayName": "Sands of Time",
+            "description": "Match Time balls to add 6 seconds.",
+            "sprite": "",
+            "cost": 1000,
+            "effects":
+            {
+                "timeBallsTimeBonus": 1
+            }
+        },
+        {
+            "internalName": "27",
+            "displayName": "Tempus Fugit",
+            "description": "Match Time balls to add 7 seconds.",
+            "sprite": "",
+            "cost": 2000,
+            "effects":
+            {
+                "timeBallsTimeBonus": 2
+            }
+        },
+        {
+            "internalName": "28",
+            "displayName": "Timelord",
+            "description": "Match Time balls to add 8 seconds.",
+            "sprite": "",
+            "cost": 4000,
+            "effects":
+            {
+                "timeBallsTimeBonus": 3
+            }
+        }
     ]
 }

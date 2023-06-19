@@ -27,12 +27,15 @@ local Vec2 = require("src.Essentials.Vector2")
 function Hole:new(path)
     self.path = path
     self.pos = Vec2.round(path.nodes[#path.nodes].pos)
+    self.alpha = 0
+    self.frame = 0
 
     self.skullHoleSprite = _Game.resourceManager:getSprite("sprites/game/skull_hole.json")
     self.skullMaskSprite = _Game.resourceManager:getSprite("sprites/game/skull_mask.json")
     self.skullFrameSprite = _Game.resourceManager:getSprite("sprites/game/skull_frame.json")
     self.skullTopSprite = _Game.resourceManager:getSprite("sprites/game/skull_top.json")
     self.skullBottomSprite = _Game.resourceManager:getSprite("sprites/game/skull_bottom.json")
+    self.skullRing = _Game.resourceManager:getSprite("sprites/game/skull_ring.json")
     self.skullMaskShader = love.graphics.newShader [[
         vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
             if (Texel(texture, texture_coords).rgb == vec3(0.0)) {
@@ -51,6 +54,7 @@ end
 
 function Hole:update(dt)
     local dangerProgress = self.path:getDangerProgress()
+    self.frame = ((self.frame + (dt * 15)) % 36)
 
     -- top sprite
     local topSpriteOffsetBuffer = dangerProgress*20
@@ -63,6 +67,14 @@ function Hole:update(dt)
     -- ring of fire
     -- the ring of fire uses some sort of animation that changes depending on the state,
     -- an opacity value won't do
+    -- 2 seconds to fade in, and 1.5 seconds fading out.
+    if dangerProgress > 0 then
+        self.alpha = math.min(self.alpha + (dt/2), 1)
+    else
+        self.alpha = math.max(self.alpha - (dt/1.5), 0)
+    end
+    if self.alpha == 0 then self.frame = 1 end
+
 end
 
 
@@ -84,6 +96,10 @@ function Hole:draw()
 
     love.graphics.setStencilTest()
     self.skullFrameSprite:draw(self.pos, Vec2(0.5,0.5))
+    
+    if self.path:getDangerProgress() > 0 then
+        self.skullRing:draw(self.pos, Vec2(0.5,0.5),nil,self.frame+1,nil,nil,self.alpha)
+    end
 end
 
 

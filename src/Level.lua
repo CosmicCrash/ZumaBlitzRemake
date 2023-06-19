@@ -22,6 +22,15 @@ local ltn12 = require"ltn12"
 ---Constructs a new Level.
 ---@param data table The level data, specified in a level config file.
 function Level:new(data)
+	
+	-- Initalize level parameters
+	self.levelParameters = {}
+	self:setLevelDefaultParameters()
+	self.mapEffects = data.effects or {}
+
+	-- Add the values from powers, fruit, spirit animals, and the like.
+	self:addPowerEffects()
+
     self.map = Map(self, "maps/" .. data.map, data.pathsBehavior)
     self.shooter = Shooter(data.shooter or self.map.shooter)
 
@@ -35,49 +44,33 @@ function Level:new(data)
 		_Game.configManager.frogatars[monument]:changeTo(self)
 	end
 
-	self.matchEffect = data.matchEffect
+	self.matchEffect = data.matchEffect or "match"
 
 	local objectives = data.objectives
-	if data.target then
-		objectives = {{type = "destroyedSpheres", target = data.target}}
-	end
-	if _Game.satMode then
-		objectives = {{type = "destroyedSpheres", target = _Game:getCurrentProfile():getUSMNumber() * 10}}
+
+	-- if there are no objectives defined on the map, create one with timer = 60
+	if objectives == nil then
+		objectives = {{type = "timeSurvived", target = 60}}
 	end
 	self.objectives = {}
+
+	-- account for extra time
+	-- this might not work correctly if type is other than timeSurvived
 	for i, objective in ipairs(objectives) do
-		table.insert(self.objectives, {type = objective.type, target = objective.target, progress = 0, reached = false})
+		table.insert(self.objectives, {type = objective.type, target = objective.target + self:getParameter("extraStartingTime"), progress = 0, reached = false})
 	end
 
 	self.stateCount = 0
 
-    self.powerupFrequency = data.powerupFrequency or 15
-    self.individualPowerupFrequencies = data.individualPowerupFrequencies or nil
-	self.powerupList = {"timeball", "multiplier"} -- this should prob be replaced with a function when powers are implemented
-    -- Apparently Multiplier balls appear faster as Spirit Turtle, but by how much?
-    -- src: http://bchantech.dreamcrafter.com/zumablitz/spiritanimals.php
-	self.lastPowerupDeltas = {}
-	for i, powerup in ipairs(self.powerupList) do
-        self.lastPowerupDeltas[powerup] = self.stateCount - 600
-    end
-    for powerup, v in pairs(self.lastPowerupDeltas) do
-		if self.individualPowerupFrequencies and #self.individualPowerupFrequencies ~= 0 then
-			self.individualPowerupFrequencies[powerup] = data.individualPowerupFrequencies[powerup]
-		end
-	end
-
 	---@type Sprite
 	self.targetSprite = _Game.configManager.targetSprites.random[math.random(1, #_Game.configManager.targetSprites.random)]
-    self.targetFrequency = data.targetFrequency
-    self.targetInitialDelaySecondsElapsed = false
 
-	self.targetHitScores = self:getTargetHitScoreValues()
 
-	self.colorGeneratorNormal = data.colorGeneratorNormal
-	self.colorGeneratorDanger = data.colorGeneratorDanger
+	self.colorGeneratorNormal = data.colorGeneratorNormal or "default"
+	self.colorGeneratorDanger = data.colorGeneratorDanger or "default"
 
-	self.musicName = data.music
-	self.dangerMusicName = data.dangerMusic
+	self.musicName = data.music or "game3"
+	self.dangerMusicName = data.dangerMusic or "danger2"
 	self.ambientMusicName = data.ambientMusic
 
 	self.dangerSoundName = data.dangerSound or "sound_events/warning.json"
@@ -91,6 +84,14 @@ function Level:new(data)
 	
 	-- Additional variables come from this method!
 	self:reset()
+	self:resetGameStatistics()
+
+
+	-- calculate fruit values
+	self.targetHitScore = self:getParameter("fruitPointsBase")
+	
+	-- TODO: retrieve the game constants from server when POSTing start of game.
+
 end
 
 
@@ -131,8 +132,7 @@ function Level:updateLogic(dt)
 	self.map:update(dt)
     self.shooter:update(dt)
     self.stateCount = self.stateCount + dt
-	self.targetHitScore = self.targetHitScores[math.min(self.targets+1, 6)] + (_MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "fruitPointsBase") or 0)
-
+	
     -- Danger sound
 	--[[
 	local d1 = self:getDanger() and not self.lost
@@ -227,67 +227,45 @@ function Level:updateLogic(dt)
     end
 
 
+-- todo - get # of balls with a certain attribute
 
-    -- Zuma style powerups
+	-- Zuma Blitz style powerups
     if self.started and not self.finish and not self:areAllObjectivesReached() and not self:getEmpty() then
-        local powerups = {}
-		for _,v in pairs(self.powerupList) do
-			table.insert(powerups, v)
-		end
 
-		local multiplierCap = 9
-		local raiseCap = _MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "multiplierMaximum")
-        if raiseCap then
-            multiplierCap = multiplierCap + raiseCap
-        end
-		-- Don't spawn multipliers if we've hit the cap
-		if self.multiplier >= multiplierCap then
-			local pCount = 1
-			for _,v in pairs(powerups) do
-                if v == "multiplier" then
-					table.remove(powerups, pCount)
-                end
-				pCount = pCount + 1
-			end
+		-- timer will tick down even if the powerup isn't active, but needs to be active for it to spawn
+		self.multiplierCooldown = self.multiplierCooldown - dt
+		self.timeballCooldown = self.timeballCooldown - dt
+		self.bombsCooldown = self.bombsCooldown - dt
+		self.cannonCooldown = self.cannonCooldown - dt
+		self.colorNukeCooldown = self.colorNukeCooldown - dt
+		local multiplierCap = self:getParameter("multiplierMaximum") 
+		
+		if self.multiplierCooldown <= 0 and self.multiplier < multiplierCap and self:getParameter("multiplierBallsEnabled") > 0 then
+			self.multipliersSpawned = self.multipliersSpawned + 1
+			self.multiplierCooldown = self:getParameter("multiplierFrequencyBase") + (math.random() * self:getParameter("multiplierFrequencyRange"))
+			self:addPowerup("multiplier", self:getParameter("multiplierLifetime"))
 		end
-
-        local powerupToAdd = powerups[math.random(1, #powerups)]
-        local frequencies = {
-            all = self.powerupFrequency
-        }
-        for i, powerup in ipairs(self.powerupList) do
-            frequencies[powerup] = (self.individualPowerupFrequencies and self.individualPowerupFrequencies[powerup]) or frequencies.all
+		if self.timeballCooldown <= 0 and self:getParameter("timeBallsEnabled") > 0 then
+			self.chronoBallsSpawned = self.chronoBallsSpawned + 1
+			self.timeballCooldown = self:getParameter("timeBallsFrequencyBase") + (math.random() * self:getParameter("timeBallsFrequencyRange"))
+			self:addPowerup("timeball", self:getParameter("timeBallsLifetime"))
 		end
-        for powerup, v in pairs(self.lastPowerupDeltas) do
-			for k, w in pairs(frequencies) do
-				if frequencies[powerup] > 0 and (math.random() < 1 / frequencies[powerup]) and frequencies[powerup] < self.stateCount - self.lastPowerupDeltas[powerup] then
-					local sphere = _Game.session:getRandomSphere()
-                    if sphere then
-                        if powerupToAdd == "multiplier" then
-                            sphere:addPowerup("multiplier")
-							self.multipliersSpawned = self.multipliersSpawned + 1
-						elseif powerupToAdd ~= "multiplier" then
-							sphere:addPowerup(powerupToAdd)
-							-- determine what powerup spawned and increment the respective stat.
-							
-							if powerupToAdd == "timeball" then
-								self.chronoBallsSpawned = self.chronoBallsSpawned + 1
-							end
-							if powerupToAdd == "bomb" then
-								self.bombsSpawned = self.bombsSpawned + 1
-							end
-							if powerupToAdd == "cannon" then
-								self.cannonsSpawned = self.cannonsSpawned + 1
-							end
-							if powerupToAdd == "colornuke" then
-								self.colorNukesSpawned = self.colorNukesSpawned + 1
-							end
-						end
-					end
-					self.lastPowerupDeltas[powerup] = self.stateCount
-				end
-			end
-        end
+		if self.bombsCooldown <= 0 and self:getParameter("bombsEnabled") > 0 then
+			self.bombsSpawned = self.bombsSpawned + 1
+			self.bombsCooldown = self:getParameter("bombsFrequencyBase") + (math.random() * self:getParameter("bombsFrequencyRange"))
+			self:addPowerup("bombs", self:getParameter("bombsLifetime"))
+		end
+		if self.cannonCooldown <= 0 and self:getParameter("cannonsEnabled") > 0 then
+			self.cannonsSpawned = self.cannonsSpawned + 1
+			self.cannonCooldown = self:getParameter("cannonsFrequencyBase") + (math.random() * self:getParameter("cannonsFrequencyRange"))
+			self:addPowerup("cannons", self:getParameter("cannonsLifetime"))
+		end
+		if self.colorNukeCooldown <= 0 and self:getParameter("colorNukeEnabled") > 0 then
+			self.colorNukesSpawned = self.colorNukesSpawned + 1
+			self.colorNukeCooldown = self:getParameter("colorNukeFrequencyBase") + (math.random() * self:getParameter("colorNukeFrequencyRange"))
+			self:addPowerup("colornuke", self:getParameter("colorNukeLifetime"))
+		end
+		
 		-- Traverse through all the spheres one more time and remove any multiplier powerups if
         -- we've reached the cap
 		-- TODO: Is there a better way to traverse every sphere? Might need to add a new function
@@ -311,19 +289,10 @@ function Level:updateLogic(dt)
 
     -- Targets
     if self.started and not self.finish then
-		if not self.target and (self.map.targetPoints and self.targetFrequency) then
+		if not self.target and (self.map.targetPoints) then
             local validPoints = {}
-			if self.targetFrequency.type == "seconds" then
 				self.targetSecondsCooldown = self.targetSecondsCooldown - dt
 				if self.targetSecondsCooldown < 0 then
-					if not self.targetInitialDelaySecondsElapsed then
-						self.targetInitialDelaySecondsElapsed = true
-                        self.targetSecondsCooldown = self.targetFrequency.delay
-						local fruitMaster = _Game:getCurrentProfile():getEquippedPower("fruit_master")
-						if fruitMaster then
-							self.targetSecondsCooldown = self.targetSecondsCooldown - fruitMaster:getCurrentLevelData().subtractiveSeconds
-						end
-					end
 					for i, point in ipairs(self.map.targetPoints) do
 						for j, path in ipairs(self.map.paths) do
 							local d = path:getMaxOffset() / path.length
@@ -333,10 +302,6 @@ function Level:updateLogic(dt)
 						end
 					end
 				end
-			elseif self.targetFrequency.type == "frequency" then
-				-- we won't be implementing this for ZBR, but this is here for
-				-- flexibility of OpenSMCE
-			end
 			if #validPoints > 0 then
 				self.target = Target(
 					self.targetSprite,
@@ -348,10 +313,9 @@ function Level:updateLogic(dt)
 			end
 		elseif self.target then
 			-- don't tick the timer down if there's fruit present
-            self.targetSecondsCooldown = self.targetFrequency.delay
-			local fruitMaster = _Game:getCurrentProfile():getEquippedPower("fruit_master")
-			if fruitMaster then
-				self.targetSecondsCooldown = self.targetSecondsCooldown - fruitMaster:getCurrentLevelData().subtractiveSeconds
+			-- if cooldown is already established do not do it again.
+			if self.targetSecondsCooldown <= 0 then 
+           		self.targetSecondsCooldown = self:getParameter("fruitFrequency") + (math.random() * self:getParameter("fruitFrequencyRange"))
 			end
 			if self.target.delQueue then
 				self.target = nil
@@ -460,7 +424,7 @@ function Level:updateLogic(dt)
 		end
 		-- FORK-SPECIFIC CODE: Add a highscore after the board
 		_Game:getCurrentProfile():writeHighscore()
-		_Game.uiManager:executeCallback("levelLost")
+		_Game.uiManager:executeCallback("levelComplete")
 		self.ended = true
 		self:saveStats()
 	end
@@ -472,7 +436,16 @@ function Level:updateLogic(dt)
 	end
 end
 
+--- Add powerup, default 20 seconds if not defined
+--- Only spawn if duration is positive
 
+function Level:addPowerup(name, duration)
+	if duration == nil then duration = 20 end
+	local sphere = _Game.session:getRandomSphere()
+	if sphere and duration > 0 then
+		sphere:addPowerup(name, nil, duration)
+	end
+end
 
 ---Adjusts which music is playing based on the level's internal state.
 function Level:updateMusic()
@@ -560,22 +533,6 @@ function Level:grantScore(score)
 end
 
 
-
----Adds one coin to the current Profile and to level's statistics.
-function Level:grantCoin()
-	self.coins = self.coins + 1
-	_Game:getCurrentProfile():grantCoin()
-end
-
-
-
----Adds one gem to the level's statistics.
-function Level:grantGem()
-	self.gems = self.gems + 1
-end
-
-
-
 ---Adds one sphere to the destroyed sphere counter.
 function Level:destroySphere()
 	if self.lost then
@@ -654,10 +611,6 @@ function Level:applyEffect(effect, TMP_pos)
 	elseif effect.type == "grantScore" then
 		self:grantScore(effect.score)
 		self:spawnFloatingText(_NumStr(effect.score), TMP_pos, "fonts/score0.json")
-	elseif effect.type == "grantCoin" then
-		self:grantCoin()
-	elseif effect.type == "incrementGemStat" then
-		self:grantGem()
 	elseif effect.type == "addTime" then
         self.objectives[1].target = self.objectives[1].target + effect.amount
 		self.extraTimeAdded = self.extraTimeAdded + effect.amount
@@ -893,15 +846,7 @@ end
 ---Get the Target score values that changes depending on the Fruit and Spirit Animal.
 ---@return number[]
 function Level:getTargetHitScoreValues()
-    local currentScore = 3000
-    local profile = _Game:getCurrentProfile()
-
-    if profile:getFrogatarEffects().fruitValueModifier then
-        currentScore = currentScore + profile:getFrogatarEffects().fruitValueModifier
-    end
-	if profile:getEquippedFoodItemEffects().fruitValueModifier then
-		currentScore = currentScore + profile:getEquippedFoodItemEffects().fruitValueModifier
-	end
+    local currentScore = self:getParameter("fruitPointsBase")
 	local useFilter = false
 	local filterScore = 0
 	local tbl = {}
@@ -932,14 +877,17 @@ function Level:incrementBlitzMeter(amount, chain)
 		return
     end
 	
+	-- test
+	--amount = 0.5
 	self.blitzMeter = math.min(self.blitzMeter + amount, 1)
     if (not chain and self.blitzMeter == 1) or (chain and self.blitzMeter >= 1) then
         -- hot frog
-		local infernoFrog = _Game:getCurrentProfile():getEquippedPower("inferno_frog")
-		local additiveAmount = (infernoFrog and infernoFrog:getCurrentLevelData().additiveAmount) or 0
-        self.shooter:getMultiSphere(-2, (3 + additiveAmount))
+		-- minimum hot frog shots is 1 otherwise graphics won't work properly
+		local additiveAmount = math.max(self:getParameter("hotFrogShots"), 1)
+        self.shooter:getMultiSphere(-2, (additiveAmount))
 		_Game:playSound("sound_events/hot_frog_activate.json")
 		_Game:spawnParticle("particles/hf_blast.json", self.shooter.pos)
+		self.hotFrogStarts = self.hotFrogStarts + 1
 	end
 end
 
@@ -989,20 +937,6 @@ end
 function Level:getFinish()
 	return self:hasNoMoreSpheres() and #self.collectibles == 0
 end
-
-
-
----Takes one life away from the current Profile, and either restarts this Level, or ends the game.
-function Level:tryAgain()
-	if _Game:getCurrentProfile():loseLevel() then
-		_Game.uiManager:executeCallback("levelStart")
-		self:reset()
-	else
-		_Game.session:terminate()
-	end
-end
-
-
 
 ---Starts the Level.
 function Level:begin()
@@ -1106,28 +1040,21 @@ function Level:reset()
 
 	-- add in current speedbonus
 	self.speedBonus = 0
+	self.speedBonusIncrement = 0
 	self.speedTimer = 0
 
     self.target = nil
-	if _MathAreKeysInTable(self, "targetFrequency", "type") == "seconds" then
-        self.targetSecondsCooldown = self.targetFrequency.initialDelay
-		local fruitMaster = _Game:getCurrentProfile():getEquippedPower("fruit_master")
-		if fruitMaster then
-			self.targetSecondsCooldown = self.targetSecondsCooldown - fruitMaster:getCurrentLevelData().subtractiveSeconds
-		end
-	end
+	self.targetSecondsCooldown = self:getParameter("fruitFrequency") + (math.random() * self:getParameter("fruitFrequencyRange"))
+	self.multiplierCooldown = self:getParameter("multiplierFrequencyBase") + (math.random() * self:getParameter("multiplierFrequencyRange"))
+	self.timeballCooldown = self:getParameter("timeBallsFrequencyBase") + (math.random() * self:getParameter("timeBallsFrequencyRange"))
+	self.bombsCooldown = self:getParameter("bombsFrequencyBase") + (math.random() * self:getParameter("bombsFrequencyRange"))
+	self.cannonCooldown = self:getParameter("cannonsFrequencyBase") + (math.random() * self:getParameter("cannonsFrequencyRange"))
+	self.colorNukeCooldown = self:getParameter("colorNukeFrequencyBase") + (math.random() * self:getParameter("colorNukeFrequencyRange"))
 
     self.blitzMeter = 0
 	self.blitzMeterCooldown = 0
 	self.shotLastHotFrogBall = false
-    self.multiplier = 1
-	-- TODO: Fix this unless this is the only way.
-    -- For some stupid reason, _Game:getCurrentProfile() doesn't work here.
-	-- Yet, the value that returns from that function works fine??
-    local multiMultiplier = _Game.runtimeManager.profileManager:getCurrentProfile():getEquippedPower("multi_multiplier")
-	if multiMultiplier then
-		self.multiplier = self.multiplier + multiMultiplier:getCurrentLevelData().additiveAmount
-	end
+    self.multiplier = self:getParameter("multiplierStarting")
 
 	self.spheresShot = 0
 	self.sphereChainsSpawned = 0
@@ -1163,7 +1090,15 @@ function Level:reset()
 	self.shooter.speedShotTime = 0
 	_Game.session.colorManager:reset()
 
+
+	-- Set game constants here. 
+
+end
+
 	-- other in-game statistics
+
+function Level:resetGameStatistics()
+
 	self.gapsNum = 0
 	self.combosScore = 0
 	self.gapsScore = 0
@@ -1210,7 +1145,197 @@ function Level:reset()
 	self.bombsScore = 0
 	self.hotFrogConsolationScore = 0
 	self.wildShotShots = 0
+end
 
+-- set level scoring constants
+-- We convert 32 to 29px (TODO)
+function Level:setLevelDefaultParameters()
+	self.levelParameters["shotSpeedBase"] = 0
+	self.levelParameters["shotSpeedMultiplier"] = 1
+	self.levelParameters["speedUpShotsTotalIncrease"] = 0
+	self.levelParameters["bombsExplosionRadius"] = 107
+	self.levelParameters["bombsFrequencyBase"] = 7
+	self.levelParameters["bombsFrequencyRange"] = 3
+	self.levelParameters["bombsLifetime"] = 21
+	self.levelParameters["bombsMaxBalls"] = -1
+	self.levelParameters["bombsBasePoints"] = 0
+	self.levelParameters["bombsEachPoints"] = 10
+	self.levelParameters["bombsMultPoints"] = 1
+	self.levelParameters["cannonsFrequencyBase"] = 7
+	self.levelParameters["cannonsFrequencyRange"] = 3
+	self.levelParameters["cannonsLifetime"] = 21
+	self.levelParameters["cannonsPointsBase"] = 10
+	self.levelParameters["cannonsPointsMultiplier"] = 1
+	self.levelParameters["cannonsSpread"] = 2
+	self.levelParameters["cannonsMaxBalls"] = -1
+	self.levelParameters["cannonsSpreadSpread"] = 15
+	self.levelParameters["chainBlastEnabled"] = 0
+	self.levelParameters["chainBlastExplosionRadius"] = 107
+	self.levelParameters["chainBlastIncrement"] = 5
+	self.levelParameters["chainBlastMinimum"] = 10
+	self.levelParameters["chainBlastScoreBase"] = 0
+	self.levelParameters["chainBlastScoreEach"] = 10
+	self.levelParameters["chainBlastScoreMult"] = 1
+	self.levelParameters["frogatar"] = 1
+	self.levelParameters["multiplierMaximum"] = 9
+	self.levelParameters["multiplierStarting"] = 1
+	self.levelParameters["extraStartingTime"] = 0
+	self.levelParameters["xpMultiplier"] = 1
+	self.levelParameters["coinsMultiplier"] = 1
+	self.levelParameters["matchPointsBase"] = 10
+	self.levelParameters["fruitFrequency"] = 12
+	self.levelParameters["fruitFrequencyRange"] = 5
+	self.levelParameters["fruitLifetime"] = 10
+	self.levelParameters["fruitPointsBase"] = 3000
+	self.levelParameters["fruitPointsMultiplier"] = 1
+	self.levelParameters["fruitRadius"] = 24
+	self.levelParameters["fruitTicksAdded"] = 0
+	self.levelParameters["fruitFactor"] = 0.5
+	self.levelParameters["fruitCap"] = 5
+	self.levelParameters["fruitRoundingValue"] = 50
+	self.levelParameters["hotFrogShots"] = 3
+	self.levelParameters["hotFrogRadius"] = 112
+	self.levelParameters["hotFrogPointsBase"] = 1000
+	self.levelParameters["hotFrogPointsInc"] = 100
+	self.levelParameters["hotFrogDecayPerSecond"] = 500
+	self.levelParameters["hotFrogMatchValue"] = 1000
+	self.levelParameters["hotFrogGoal"] = 20000
+	self.levelParameters["hotFrogFruitInc"] = 1
+	self.levelParameters["hotFrogExplosionInc"] = 1
+	self.levelParameters["hotFrogDelayFrames"] = 50
+	self.levelParameters["hotFrogComboBreaker"] = 0
+	self.levelParameters["hotFrogJackpotInc"] = 500
+	self.levelParameters["hotFrogGoalInc"] = 0
+	self.levelParameters["hotFrogGoalCap"] = 0
+	self.levelParameters["hotFrogGapInc"] = 0
+	self.levelParameters["hotFrogShotSpeed"] = 20
+	self.levelParameters["lastHurrahMultiplier"] = 1
+	self.levelParameters["lastHurrahRadius"] = 112
+	self.levelParameters["lastHurrahPointBase"] = 1000
+	self.levelParameters["lastHurrahPointInc"] = 100
+	self.levelParameters["spiritShotRadius"] = 112
+	self.levelParameters["spiritShotPointsEach"] = 10
+	self.levelParameters["spiritShotPointsMult"] = 1
+	self.levelParameters["multiplierBallsEnabled"] = 1
+	self.levelParameters["multiplierBallsEnabled"] = 1
+	self.levelParameters["multiplierFrequencyBase"] = 5
+	self.levelParameters["multiplierFrequencyRange"] = 14
+	self.levelParameters["multiplierLifetime"] = 21
+	self.levelParameters["multiplierMaxBalls"] = -1
+	self.levelParameters["spiritBlastThreshold"] = 13
+	self.levelParameters["spiritBlastRadius"] = 112
+	self.levelParameters["timeBallsEnabled"] = 1
+	self.levelParameters["timeBallsFrequencyBase"] = 8
+	self.levelParameters["timeBallsFrequencyRange"] = 5
+	self.levelParameters["timeBallsLifetime"] = 21
+	self.levelParameters["timeBallsTimeBonus"] = 5
+	self.levelParameters["timeBallsMaxBalls"] = -1
+	self.levelParameters["chainBonusChainMin"] = 6
+	self.levelParameters["chainBonusPointsInc"] = 10
+	self.levelParameters["chainBonusPointsBase"] = 100
+	self.levelParameters["chainBonusJackpotPoints"] = 500
+	self.levelParameters["chainBonusJackpotEachPoints"] = 250
+	self.levelParameters["chainBonusJackpotEach"] = 5
+	self.levelParameters["chainBonusJackpotStart"] = 10
+	self.levelParameters["curveSpeedFactor"] = 1
+	self.levelParameters["curveMaxSingleAdj"] = 0
+	self.levelParameters["curveMaxClumpAdj"] = 0
+	self.levelParameters["curveMatchPercentAdj"] = 0
+	self.levelParameters["gapPointsRounding"] = 10
+	self.levelParameters["gapPointMin"] = 50
+	self.levelParameters["gapGapMax"] = 300
+	self.levelParameters["gapPointsBase"] = 10000
+	self.levelParameters["gapMultSingle"] = 1
+	self.levelParameters["gapMultDouble"] = 2
+	self.levelParameters["gapMultTriple"] = 3
+	self.levelParameters["gapMinAdjustment"] = 0
+	self.levelParameters["speedBonusPointsBase"] = 10
+	self.levelParameters["speedBonusMaxMult"] = 12
+	self.levelParameters["speedBonusTimeBase"] = 2.75
+	self.levelParameters["wildBallEnabled"] = 0
+	self.levelParameters["wildBallThreshold"] = 15
+	self.levelParameters["wildBallPointsBase"] = 20
+	self.levelParameters["powerballDurationModifier"] = 1
+	self.levelParameters["powerballGraceFrames"] = 100
+	self.levelParameters["treasureSpawnMax"] = 2
+	self.levelParameters["treasureEnabled"] = 1
+	self.levelParameters["treasurePercentChance"] = 2
+	self.levelParameters["colorNukeMaxBalls"] = -1
+	self.levelParameters["colorNukeEnabled"] = 0
+	self.levelParameters["colorNukeLifetime"] = 16
+	self.levelParameters["colorNukeFrequencyRange"] = 5
+	self.levelParameters["colorNukePointsMultiplier"] = 1
+	self.levelParameters["colorNukePointsBase"] = 50
+	self.levelParameters["colorNukeFrequencyBase"] = 12
+	self.levelParameters["colorNukeCurveCount"] = 1
+	self.levelParameters["colorNukeLifetimeRange"] = 0
+	self.levelParameters["colorNukePointsEach"] = 10
+	self.levelParameters["comboBonusPointsBase"] = 1000
+	self.levelParameters["curveClearTicksAdded"] = 0
+	self.levelParameters["curveClearPointsBase"] = 1000
+end
+
+function Level:addPowerEffects()
+	
+	local mapEffects = self.mapEffects
+
+	for k, v in pairs(mapEffects) do
+		self:setParameter(k, mapEffects[k])
+	end
+
+	local fruitEffects = _Game:getCurrentProfile():getEquippedFoodItemEffects()
+
+	for k, v in pairs(fruitEffects) do
+		self:setParameterAdd(k, fruitEffects[k])
+	end
+
+	local frogatarEffects = _Game:getCurrentProfile():getFrogatarEffects()
+
+    for k, v in pairs(frogatarEffects) do
+		self:setParameterAdd(k, frogatarEffects[k])
+	end
+	
+	--load effects from all powers
+	
+	for i, power in ipairs(_Game:getCurrentProfile().equippedPowers) do
+		if _Game:getCurrentProfile().powerCatalog[power] == nil then
+			print("WARNING: " .. power .. " does not exist in powerCatalog")
+		else
+			local power_level = _Game:getCurrentProfile().powerCatalog[power].level
+
+			local power_effects = _Game:getCurrentProfile():getEquippedPower(power):getEffects(power_level) or {}
+
+			if power_effects ~= nil then
+				for k, v in pairs(power_effects) do
+					self:setParameterAdd(k, power_effects[k])
+				end
+			end
+		end
+
+	end
+
+end
+
+
+function Level:getParameter(parameter)
+	return self.levelParameters[parameter] or 0
+
+end
+
+-- set parameter used for boolean items
+function Level:setParameter(parameter, value)
+	if self.levelParameters[parameter] == nil then self.levelParameters[parameter] = parameter end
+	self.levelParameters[parameter] = value
+end
+
+-- set parameter stacking additively, for setting values of powers and such
+-- If the value does not exist, this will be set to whatever value is
+function Level:setParameterAdd(parameter, value)	
+	if self.levelParameters[parameter] == nil then 
+		self.levelParameters[parameter] = value
+	else
+		self.levelParameters[parameter] = self.levelParameters[parameter] + value
+	end
 end
 
 
@@ -1327,7 +1452,6 @@ function Level:serialize()
         target = (self.target and self.target:serialize()),
 		targetSprite = self.targetSprite,
         targetSecondsCooldown = self.targetSecondsCooldown,
-        targetInitialDelaySecondsElapsed = self.targetInitialDelaySecondsElapsed,
         targetHitScore = self.targetHitScore,
 		blitzMeter = self.blitzMeter,
         blitzMeterCooldown = self.blitzMeterCooldown,
@@ -1348,6 +1472,7 @@ function Level:serialize()
 		paths = self.map:serialize(),
 		lost = self.lost,
 		speedBonus = self.speedBonus,
+		speedBonus = self.speedBonusIncrement,
 		speedTimer = self.speedTimer
 	}
 	for i, shotSphere in ipairs(self.shotSpheres) do
@@ -1362,6 +1487,7 @@ end
 
 ---Stores all ingame statistics to be submitted online.
 function Level:saveStats()
+	local currentProfile = _Game:getCurrentProfile()
 	local s = {
 		destroyedSpheres = self.destroyedSpheres,
 		spheresShot = self.spheresShot,
@@ -1374,8 +1500,8 @@ function Level:saveStats()
 		MultiplierMax = self.multiplier,
 		XpEarned = (100 + self.targets + self.curveClearsNum + self.hotFrogStarts + self.chronoBallsMatched),
 		ChainMax = self.maxCombo,
-		SNSUserID = "aaa",
-		XpStartingLevel = 80,
+		SNSUserID = currentProfile:getPlayerID(),
+		XpStartingLevel = math.floor(currentProfile:getLevel()),
 		FruitSpawned = self.fruitSpawned,
 		NukesMatched = self.colorNukesMatched,
 		CombosNum = self.combosNum,
@@ -1405,9 +1531,9 @@ function Level:saveStats()
 		SpiritShotSpawned = self.spiritShotSpawned,
 		FruitScore = self.fruitScore,
 		MapName = "test",
-		CoinStartingBalance = 7500000,
+		CoinStartingBalance = currentProfile:getCurrency(),
 		SpinnerSpawned = self.spinnerSpawned,
-		XpStarting = 500000,
+		XpStarting = currentProfile.xp,
 		NukesScore = self.colorNukesScore,
 		FrogatarID = "1",
 		SpinnerMatched = self.spinnerMatched,
@@ -1453,6 +1579,9 @@ function Level:deserialize(t)
 	-- Prepare the counters
 	_Game.session.colorManager:reset()
 
+	-- Re-create the scoring default parameters (instead of storing it on the savefile).
+	self:setLevelDefaultParameters()
+
 	-- Level stats
 	self.score = t.stats.score
 	self.coins = t.stats.coins
@@ -1474,7 +1603,6 @@ function Level:deserialize(t)
 	end
     self.targetSecondsCooldown = t.targetSecondsCooldown
 	self.targetHitScore = t.targetHitScore
-	self.targetInitialDelaySecondsElapsed = t.targetInitialDelaySecondsElapsed
 	self.blitzMeter = t.blitzMeter
 	self.blitzMeterCooldown = t.blitzMeterCooldown
 	self.shotLastHotFrogBall = t.shotLastHotFrogBall
@@ -1482,6 +1610,7 @@ function Level:deserialize(t)
 	self.lost = t.lost
 	-- ingame counters
 	self.speedBonus = t.speedBonus or 0
+	self.speedBonusIncrement = t.speedBonusIncrement or 0
 	self.speedTimer = t.speedTimer or 0
 	-- Utils
 	self.controlDelay = t.controlDelay

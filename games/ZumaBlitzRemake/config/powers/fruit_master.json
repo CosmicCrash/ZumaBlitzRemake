@@ -2,8 +2,38 @@
     "displayName": "Fruit Master",
     "type": "targetCooldownModifier",
     "levels": [
-        {"subtractiveSeconds": 3},
-        {"subtractiveSeconds": 5},
-        {"subtractiveSeconds": 7}
+        {
+            "internalName": "18",
+            "displayName": "Fruit Master",
+            "description": "Fruit appears more often",
+            "sprite": "",
+            "cost": 750,
+            "effects":
+            {
+                "fruitFrequency": -3
+            }
+        },
+        {
+            "internalName": "19",
+            "displayName": "Juicy Fruit",
+            "description": "Fruit spawns about 50% faster.",
+            "sprite": "",
+            "cost": 1500,
+            "effects":
+            {
+                "fruitFrequency": -5
+            }
+        },
+        {
+            "internalName": "20",
+            "displayName": "Epic Fruit",
+            "description": "Fruit spawns about twice as fast.",
+            "sprite": "",
+            "cost": 3000,
+            "effects":
+            {
+                "fruitFrequency": -7
+            }
+        }
     ]
 }

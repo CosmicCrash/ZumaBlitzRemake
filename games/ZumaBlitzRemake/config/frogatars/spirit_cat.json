@@ -4,11 +4,13 @@
     "isMonument": true,
     "shooterConfig": "spirit_cat",
     "effects": {
-        "spiritShotEnabled": true,
+        "spiritShotEnabled": 1,
         "spiritShotShots": 13,
         "spiritShotRadius": 56,
         "spiritShotPointsBase": 0,
-        "spiritShotPointsEach": 10
+        "spiritShotPointsEach": 10,
+        "spiritBlastEnabled": 1,
+        "spiritBlastColor": 1
     },
     "spiritBlastColor": 1
 }

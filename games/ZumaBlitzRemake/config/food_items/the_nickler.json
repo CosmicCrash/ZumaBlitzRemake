@@ -4,6 +4,6 @@
     "sprite": "",
     "effects": {
         "shotSpeedBase": 175,
-        "startingTime": 5
+        "extraStartingTime": 5
     }
 }

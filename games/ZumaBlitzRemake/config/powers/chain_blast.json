@@ -2,8 +2,43 @@
     "displayName": "Chain Blast",
     "type": "chainBlast",
     "levels": [
-        {"initialChain": 10, "consecutiveChains": 5},
-        {"initialChain": 9, "consecutiveChains": 4},
-        {"radius": 40}
+        {
+            "internalName": "23",
+            "displayName": "Chain Blast",
+            "description": "Make 10 matches in a row and trigger a huge blast.",
+            "sprite": "",
+            "cost": 1000,
+            "effects":
+            {
+                "chainBlastEnabled": 1
+            }
+        },
+        {
+            "internalName": "24",
+            "displayName": "Super Chain Blast",
+            "description": "Make 9 matches in a row and trigger a huge blast.",
+            "sprite": "",
+            "cost": 2000,
+            "effects":
+            {
+                "chainBlastEnabled": 1,
+                "chainBlastMinimum": -1,
+                "chainBlastIncrement": -1
+            }
+        },
+        {
+            "internalName": "25",
+            "displayName": "Mega Chain Blast",
+            "description": "9 matches trigger the game's largest blast.",
+            "sprite": "",
+            "cost": 4000,
+            "effects":
+            {
+                "chainBlastEnabled": 1,
+                "chainBlastMinimum": -1,
+                "chainBlastIncrement": -1,
+                "chainBlastExplosionRadius": 21
+            }
+        }
     ]
 }

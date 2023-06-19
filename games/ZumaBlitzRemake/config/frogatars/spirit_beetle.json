@@ -4,7 +4,9 @@
     "isMonument": true,
     "shooterConfig": "spirit_beetle",
     "effects": {
-        "additionalStartingTime": 12
+        "extraStartingTime": 12,
+        "spiritBlastEnabled": 1,
+        "spiritBlastColor": 3
     },
     "spiritBlastColor": 3
 }

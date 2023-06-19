@@ -3,8 +3,41 @@
     "type": "addPowerup",
     "powerup": "triShot",
     "levels": [
-        {"frequency": 20},
-        {"frequency": 16},
-        {"cannonballs": 4}
+        {
+            "internalName": "4",
+            "displayName": "Cannon",
+            "description": "Match cannon balls to fire 3 shots at once.",
+            "sprite": "",
+            "cost": 1000,
+            "effects":
+            {
+                "cannonsEnabled": 1
+            }
+        },
+        {
+            "internalName": "5",
+            "displayName": "Super Cannon",
+            "description": "Cannon balls roll out at a faster rate.",
+            "sprite": "",
+            "cost": 2000,
+            "effects":
+            {
+                "cannonsEnabled": 1,
+                "cannonsFrequencyBase": -2
+            }
+        },
+        {
+            "internalName": "6",
+            "displayName": "Cannon King",
+            "description": "Match cannon balls to fire 4 shots at once.",
+            "sprite": "",
+            "cost": 4000,
+            "effects":
+            {
+                "cannonsEnabled": 1,
+                "cannonsFrequencyBase": -2,
+                "cannonsSpread": 1
+            }
+        }
     ]
 }

@@ -36,7 +36,12 @@ function SphereEntity:getSprite()
 		if _Game.runtimeManager.options:getColorblindMode() and self.config.colorblindPowerupSprites and self.config.colorblindPowerupSprites[self.powerup] then
 			return _Game.resourceManager:getSprite(self.config.colorblindPowerupSprites[self.powerup])
 		else
-			return _Game.resourceManager:getSprite(self.config.powerupSprites[self.powerup])
+			if self.config.powerupSprites and self.config.powerupSprites[self.powerup] then
+				return _Game.resourceManager:getSprite(self.config.powerupSprites[self.powerup])
+			else
+				print("ERROR: powerupSprites was not defined")
+				return _Game.resourceManager:getSprite(self.config.sprite)
+			end
 		end
     else
 		if _Game.runtimeManager.options:getColorblindMode() and self.config.colorblindSprite then

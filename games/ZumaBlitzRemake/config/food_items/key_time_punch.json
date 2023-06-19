@@ -4,7 +4,7 @@
     "sprite": "",
     "effects": {
         "shotSpeedBase": 175,
-        "startingTime": 5,
+        "extraStartingTime": 5,
         "timeBallsExtraBonusCount": 5,
         "timeBallsExtraBonusTime": 1
     }

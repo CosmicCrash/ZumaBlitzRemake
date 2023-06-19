@@ -9,6 +9,6 @@
         }
     },
     "effects": {
-        "startingTime": 5
+        "extraStartingTime": 5
     }
 }

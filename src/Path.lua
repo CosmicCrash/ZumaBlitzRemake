@@ -44,9 +44,9 @@ function Path:new(map, pathData, pathBehavior)
 	self.spawnRules = pathBehavior.spawnRules or "continuous"
 
 	-- handle adjustments from food effects
-	self.adjustSingles = _MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "curveMaxSingleAdj") or 0
-	self.adjustClumps = _MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "curveMaxClumpAdj") or 0
-	self.adjustCurveMatchPercent = _MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "curveMatchPercentAdj") or 0
+	self.adjustSingles = self.map.level:getParameter("curveMaxSingleAdj")
+	self.adjustClumps = self.map.level:getParameter("curveMaxClumpAdj")
+	self.adjustCurveMatchPercent = self.map.level:getParameter("curveMatchPercentAdj")
 	self.adjustCurveMatchPercent  = self.adjustCurveMatchPercent / 100
 
 --	_Log:printt("Single Adjustment", "-> " .. self.adjustSingles)
@@ -66,14 +66,6 @@ function Path:new(map, pathData, pathBehavior)
 --	_Log:printt("Max Singles", "-> " .. self.maxSingles)
 --	_Log:printt("Max Clumps", "-> " .. self.maxClumps)
 
-	if _Game.satMode then
-		local n = _Game:getCurrentProfile():getUSMNumber() * 10
-		self.spawnRules = {
-			--type = "waves",
-			--amount = n
-			type = "continuous"
-		}
-	end
 	self.spawnAmount = 0
 	self.spawnDistance = pathBehavior.spawnDistance
 	self.dangerDistance = pathBehavior.dangerDistance
@@ -180,11 +172,7 @@ function Path:update(dt)
 		self.pathClearGranted = true
         -- Curve Clears in Kroakatoa grant 1000 + (total time elapsed * 100).
         -- Reference: http://bchantech.dreamcrafter.com/zumablitz/scoringmechanics_relaunch.php
-        local score = 1000 + (math.floor(self.map.level.time) * 100)
-		local extraPoints = _Game:getCurrentProfile():getEquippedFoodItemEffects().curveClearPointModifier
-		if extraPoints then
-			score = score + extraPoints
-		end
+        local score = self.map.level:getParameter("curveClearPointsBase") + (math.floor(self.map.level.time) * 100)
 
 		self.map.level.curveClearsScore = self.map.level.curveClearsScore + score
 		self.map.level.curveClearsNum = self.map.level.curveClearsNum + 1
@@ -197,10 +185,9 @@ function Path:update(dt)
         )
 		_Game:playSound("sound_events/curve_clear.json")
 
-		-- TODO: Use the value of curveClearTicksAdded for adding time instead of 1
-		local shouldGiveOneSecond = _MathAreKeysInTable(_Game:getCurrentProfile():getEquippedFoodItemEffects(), "curveClearTicksAdded")
-		if (not self.map.level.finish) and shouldGiveOneSecond then
-			self.map.level:applyEffect({type = "addTime", amount = 1})
+		local curveClearTicksAdded = self.map.level:getParameter("curveClearTicksAdded")
+		if (not self.map.level.finish) then
+			self.map.level:applyEffect({type = "addTime", amount = curveClearTicksAdded})
         end
 		
         -- Accelerate spheres on Curve Clear.
@@ -496,9 +483,6 @@ end
 ---@return number
 function Path:getSpeed(pixels)
 	local satModeMult = 1
-	if _Game.satMode and _Game:getCurrentProfile().session then
-		satModeMult = 1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.05
-	end
 
 	local part = pixels / self.length
 	for i, speed in ipairs(self.speeds) do
@@ -717,6 +701,10 @@ function Path:getGapSize(offset)
 			for j, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				if sphereGroup.nextGroup and sphereGroup.nextGroup:getBackPos() > offset and sphereGroup:getFrontPos() < offset then
 					return sphereGroup.nextGroup:getBackPos() - sphereGroup:getFrontPos(), sphereGroup
+				end
+				-- If the ball passes through the sphere group, return 1. Should only occur if it passed through a ghost sphere.
+				if sphereGroup:getFrontPos() > offset and sphereGroup:getBackPos() < offset then
+					return 1, sphereGroup
 				end
 			end
 		end

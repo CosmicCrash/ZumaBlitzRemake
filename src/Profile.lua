@@ -300,13 +300,6 @@ function Profile:setCurrentLevelData(data)
 	self.levels[self:getLevelIDStr()] = data
 end
 
----Temporary function for UltimatelySatisfyingMode.
----@return integer
-function Profile:getUSMNumber()
-	return self:getSession() and self:getLevelPtr() or 1
-end
-
-
 
 -- Score
 
@@ -319,31 +312,7 @@ end
 ---Adds a given amount of points to the player's current score.
 ---@param score integer The score to be added.
 function Profile:grantScore(score)
-	if self.ultimatelySatisfyingMode then
-		self.session.score = self.session.score + score * math.floor(1 + (self:getUSMNumber() - 1) * 0.2)
-	else
-		self.session.score = self.session.score + score
-	end
-end
-
-
-
--- Coins
-
----Returns the player's current coin count.
----@return integer
-function Profile:getCoins()
-	return self.session.coins
-end
-
----Adds one coin to the player's current coin count. If reached 30, the player is granted an extra life, and the coin counter is reset back to 0.
-function Profile:grantCoin()
-	self.session.coins = self.session.coins + 1
-	if self.session.coins == 30 then
-		self:grantLife()
-		self.session.coins = 0
-	end
-	_Game.uiManager:executeCallback("newCoin")
+	self.session.score = self.session.score + score
 end
 
 ---Gives currency.
@@ -363,6 +332,11 @@ function Profile:getCurrency()
 	return self.currency
 end
 
+--- Return player ID
+function Profile:getPlayerID()
+	return self.uniqueid
+end
+
 ---Calculates the level from XP. Normally 55 more per level, but it will be 250 here to adjust for xp scaling.
 ---Fractional values are used to determine the length of the XP bar.
 function Profile:getLevel()
@@ -377,31 +351,6 @@ function Profile:getLevel()
 end
 
 -- Lives
-
----Returns the player's current life count.
----@return unknown
-function Profile:getLives()
-	return self.session.lives
-end
-
----Grants an extra life to the player.
-function Profile:grantLife()
-	self.session.lives = self.session.lives + 1
-	_Game.uiManager:executeCallback("newLife")
-end
-
----Takes one life away from the player and returns `true`, if the player has any. If not, returns `false`.
----@return boolean
-function Profile:takeLife()
-	if self.session.lives == 0 then
-		return false
-	end
-	self.session.lives = self.session.lives - 1
-	-- returns true if the player can retry
-	return true
-end
-
-
 
 -- Unlocked checkpoints
 
@@ -495,24 +444,6 @@ function Profile:getLevelHighscoreInfo(score)
 	local levelData = self:getCurrentLevelData()
 	return not levelData or score > levelData.score
 end
-
-
-
----Increments the level lose count and takes one life. Returns `false` if the player has had already zero lives, per `Profile:takeLife()`.
----@see Profile.takeLife()
----@return boolean
-function Profile:loseLevel()
-	local levelData = self:getCurrentLevelData() or {score = 0, won = 0, lost = 0}
-
-	levelData.lost = levelData.lost + 1
-	self:setCurrentLevelData(levelData)
-
-	local canRetry = self:takeLife()
-
-	return canRetry
-end
-
-
 
 -- Level saves
 
@@ -785,7 +716,6 @@ function Profile:serialize()
         equippedFood = self.equippedFood,
         powerCatalog = self.powerCatalog,
 		foodInventory = self.foodInventory,
-		ultimatelySatisfyingMode = self.ultimatelySatisfyingMode,
 		xplevel = self.xplevel,
 		xp = self.xp,
 		uniqueid = self.uniqueid,
@@ -811,7 +741,6 @@ function Profile:deserialize(t)
 	self.powerCatalog = t.powerCatalog
 	self.foodInventory = t.foodInventory
 	self.equippedFood = t.equippedFood
-    self.ultimatelySatisfyingMode = t.ultimatelySatisfyingMode
 	self.xplevel = t.xplevel
 	self.xp = t.xp
 	self.uniqueid = t.uniqueid

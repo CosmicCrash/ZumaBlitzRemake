@@ -4,9 +4,10 @@
     "isMonument": true,
     "shooterConfig": "spirit_turtle",
     "effects": {
-        "fruitsActivateHotFrog": true,
-        "speedBonusModifier": 2,
-        "comboScoringBug": true
+        "speedBonusPointsBase": 10,
+        "hotFrogFruitInc": 20000,
+        "spiritBlastEnabled": 1,
+        "spiritBlastColor": 5
     },
     "spiritBlastColor": 5
 }

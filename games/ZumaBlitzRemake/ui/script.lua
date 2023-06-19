@@ -113,7 +113,6 @@ function c.splashEnd(f)
   c.Menu_StageSelect_Frame = f.getWidgetN("root/Menu_StageSelect/Frame")
 
   c.Hud = f.getWidgetN("root/Game/Hud")
-  c.Hud_NewLife = f.getWidgetN("root/Game/Hud/Frame/Psys_NewLife")
   c.Button_Menu = f.getWidgetN("root/Game/Hud/Frame/Button_Menu")
   c.Button_Pause = f.getWidgetN("root/Game/Hud/Frame/Button_Pause")
   c.Banner_Paused = f.getWidgetN("root/Game/Hud/Banner_Paused")
@@ -129,12 +128,8 @@ function c.splashEnd(f)
   c.Banner_HighScore_Panel = f.getWidgetN("root/Game/Hud/Banner_HighScore/Panel")
   c.Banner_QuitBackground = f.getWidgetN("root/Game/Hud/Banner_QuitBackground")
   c.Banner_QuitBackground_Background = f.getWidgetN("root/Game/Hud/Banner_QuitBackground/Background")
-  c.Banner_LevelLose = f.getWidgetN("root/Game/Hud/Banner_LevelLose")
-  c.Banner_LevelLose_Panel = f.getWidgetN("root/Game/Hud/Banner_LevelLose/Panel")
   c.Banner_Intro = f.getWidgetN("root/Game/Hud/Banner_Intro")
   c.Banner_Intro_Panel = f.getWidgetN("root/Game/Hud/Banner_Intro/Panel")
-  c.Banner_GameOver = f.getWidgetN("root/Game/Hud/Banner_GameOver")
-  c.Banner_GameOver_Panel = f.getWidgetN("root/Game/Hud/Banner_GameOver/Panel")
 
 
 
@@ -230,21 +225,6 @@ function c.splashEnd(f)
     i = i + 1
   end
 
-  c.stageNames = {
-    "THE QUEST BEGINS",
-    "CHASING THE CARAVAN",
-    "TO THE PYRAMIDS",
-    "CLUE IN THE RUINS",
-    "THE OASIS OF ISIS",
-    "JOURNEY TO THE SPHINX",
-    "PILLARS OF KARNAK",
-    "AFTER THE HIGH PRIEST",
-    "CITY OF THE DEAD",
-    "UP THE CATARACTS",
-    "THE HERMIT'S ADVICE",
-    "TEMPLE OF THE GODDESS",
-    "THE WRATH OF SET"
-  }
   c.newGameStage = 1
   c.newGameStarting = false
   c.scoreDisplay = 0
@@ -302,13 +282,6 @@ function c.splashEnd(f)
   c.Banner_LevelComplete_Text_MaxChain = f.getWidgetN("root/Game/Hud/Banner_LevelComplete/Frame/Container/Text_MaxChain")
   c.Banner_LevelComplete_Text_Gems = f.getWidgetN("root/Game/Hud/Banner_LevelComplete/Frame/Container/Text_Gems")
   c.Banner_LevelComplete_Text_Segments = f.getWidgetN("root/Game/Hud/Banner_LevelComplete/Frame/Container/Text_Segments")
-  c.Banner_StageMap_Text_StageName = f.getWidgetN("root/Game/Hud/Banner_StageMap/Frame/StageMap/Text_StageName")
-  c.Banner_StageMap_Text_StageNumber = f.getWidgetN("root/Game/Hud/Banner_StageMap/Frame/StageMap/Text_StageNumber")
-  c.Banner_StageMap_Text_MapName = f.getWidgetN("root/Game/Hud/Banner_StageMap/Frame/StageMap/Text_MapName")
-  c.Banner_HighScore_Text_Congrats = f.getWidgetN("root/Game/Hud/Banner_HighScore/Panel/Text_Congrats")
-  c.Banner_HighScore_Text_Score = f.getWidgetN("root/Game/Hud/Banner_HighScore/Panel/Text_Score")
-  c.Banner_Intro_Text_Stage = f.getWidgetN("root/Game/Hud/Banner_Intro/Panel/Text_Stage")
-  c.Banner_Intro_Text_Map = f.getWidgetN("root/Game/Hud/Banner_Intro/Panel/Text_Map")
 
 
 
@@ -1042,7 +1015,6 @@ function c.tick(f)
     local player = ""
     local playerlevel = 0
     local playercurrency = 0 
-    local player_progress_bar = 0
 
     if f.profileGetExists() then
       player = f.profileGetName()
@@ -1051,7 +1023,7 @@ function c.tick(f)
       
 
       if f.profileGetSession() then
-        local coins = tostring(f.profileGetCoins())
+        local coins = "0"
         local score = f.profileGetScore()
         local scoreStr = _NumStr(score)
         if c.scoreDisplay < score then
@@ -1062,7 +1034,7 @@ function c.tick(f)
         local scoreAnim = _NumStr(c.scoreDisplay)
         local levelName = f.profileGetLevelName()
         local levelMapName = f.profileGetMap().name
-        local stageName = c.stageNames[f.profileGetLatestCheckpoint()]
+        local stageName = " "
 
         c.Menu_Continue_Text_Stage.widget.text = "STAGE " .. levelName
         c.Menu_Continue_Text_Score.widget.text = scoreStr
@@ -1071,15 +1043,12 @@ function c.tick(f)
         c.Hud_Text_Coins.widget.text = coins
         c.Hud_Text_Score.widget.text = scoreAnim
 
-        c.Banner_StageMap_Text_StageName.widget.text = stageName
-        c.Banner_StageMap_Text_StageNumber.widget.text = "STAGE " .. levelName
-        c.Banner_StageMap_Text_MapName.widget.text = levelMapName
+        --c.Banner_StageMap_Text_StageName.widget.text = stageName
+        --c.Banner_StageMap_Text_StageNumber.widget.text = "STAGE " .. levelName
+        --c.Banner_StageMap_Text_MapName.widget.text = levelMapName
 
-        c.Banner_HighScore_Text_Congrats.widget.text = "CONGRATULATIONS, " .. player .. "!"
-        c.Banner_HighScore_Text_Score.widget.text = scoreStr
-
-        c.Banner_Intro_Text_Stage.widget.text = "STAGE " .. levelName
-        c.Banner_Intro_Text_Map.widget.text = levelMapName
+        --c.Banner_Intro_Text_Stage.widget.text = "STAGE " .. levelName
+        --c.Banner_Intro_Text_Map.widget.text = levelMapName
 
         -- Level
         if f.levelExists() then
@@ -1087,8 +1056,8 @@ function c.tick(f)
           local levelObjectives = f.levelGetObjectives()
           local levelScore = _NumStr(f.levelGetScore())
           local levelShots = tostring(f.levelGetShots())
-          local levelCoins = tostring(f.levelGetCoins())
-          local levelGems = tostring(f.levelGetGems())
+          local levelCoins = "0"
+          local levelGems = "0"
           local levelChains = tostring(f.levelGetChains())
           local levelMaxCombo = tostring(f.levelGetMaxCombo())
           local levelMaxChain = tostring(f.levelGetMaxChain())
@@ -1118,13 +1087,6 @@ function c.tick(f)
     end
 
     -- New game
-    local newCheckpointID = f.configGetCheckpointID(c.newGameStage)
-    local newLevelID = f.configGetLevelID(newCheckpointID)
-    local newLevelData = f.configGetLevelData(newLevelID)
-    local newLevelName = f.configGetLevelName(newCheckpointID)
-    local newLevelMapName = f.configGetMapData(newLevelData.map).name
-    local newStageName = c.stageNames[c.newGameStage]
-
 
     -- update widget to get current coins / values
     c.Main_Text_Level.widget.text = math.floor(playerlevel)
@@ -1162,10 +1124,6 @@ function c.tick(f)
       row.name.widget.text = entry.name
       row.score.widget.text = _NumStr(entry.score)
     end
-
-    c.Menu_StageSelect_Text_StageName.widget.text = newStageName
-    c.Menu_StageSelect_Text_StageNumber.widget.text = "STAGE " .. newLevelName
-    c.Menu_StageSelect_Text_MapName.widget.text = newLevelMapName
   end
 end
 
@@ -1189,7 +1147,6 @@ end
 
 
 function c.levelStart(f)
-  c.Banner_LevelLose:clean()
   f.levelBegin()
   c.Button_Pause:buttonSetEnabled(true)
 end
@@ -1210,47 +1167,6 @@ function c.levelComplete(f)
   if not f.levelGetNewRecord() then
     c.Banner_LevelComplete_Record:hide()
   end
-end
-
-
-
-function c.levelLost(f)
-  c.levelComplete(f)
-end
-
-
-
-function c.gameOver(f)
-  c.Banner_LevelLose:clean()
-  c.Banner_GameOver:show()
-  c.Button_Menu:buttonSetEnabled(false)
-  c.Banner_GameOver_Panel:scheduleFunction("hideEnd",
-  function()
-    c.Banner_GameOver:clean()
-    local place = f.profileHighscoreWrite()
-    if place then
-      c.highscorePlace = place
-      c.Banner_HighScore:show()
-      c.Banner_HighScore:setActive()
-    else
-      c.Hud:hide()
-      c.Hud:scheduleFunction("hideEnd",
-      function()
-        f.profileDeleteGame()
-        c.Main:show()
-        c.Main:setActive()
-        f.musicVolume("menu", 1)
-      end
-      )
-    end
-  end
-  )
-end
-
-
-
-function c.newLife(f)
-  c.Hud_NewLife:show()
 end
 
 

@@ -56,6 +56,20 @@ function Power:getLeveledDisplayName(value)
     end
 end
 
+---Returns the effects of this Power.
+---If value is nil, returns the current level.
+---@param value number|"current"|nil
+---@return string
+function Power:getEffects(value)
+    if value == "current" or value == nil then
+        value = _Game:getCurrentProfile():getPowerLevel(self._name)
+    end
+    if self.levels[value].effects == nil then
+        print ("WARNING: No valid effects defined in power")
+    end
+    
+    return self.levels[value].effects or {}
+end
 
 
 function Power:isMaxLevel()

@@ -85,24 +85,6 @@
 						"buttonClick": "gameMenuOptions"
 					}
                 },
-                "Button_Instructions": {
-                    "inheritShow": true,
-                    "inheritHide": true,
-                    "type": "spriteButton",
-                    "pos": {
-                        "x": 140,
-                        "y": 126
-                    },
-                    "alpha": 1,
-                    "children": {},
-                    "animations": {},
-                    "sounds": {},
-                    "layer": "MenuDialogControls",
-                    "sprite": "sprites/dialogs/button_instructions.json",
-					"callbacks": {
-						"buttonClick": "gameMenuHelp"
-					}
-                },
                 "Button_QuitGame": {
                     "inheritShow": true,
                     "inheritHide": true,

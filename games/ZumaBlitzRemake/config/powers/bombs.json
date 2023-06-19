@@ -3,8 +3,41 @@
     "type": "addPowerup",
     "powerup": "bomb",
     "levels": [
-        {"frequency": 20},
-        {"frequency": 16},
-        {"radius": 40}
+        {
+            "internalName": "1",
+            "displayName": "Bomb",
+            "description": "Match Bombs for huge explosions.",
+            "sprite": "",
+            "cost": 500,
+            "effects":
+            {
+                "bombsEnabled": 1
+            }
+        },
+        {
+            "internalName": "2",
+            "displayName": "Tiki Bomb",
+            "description": "Explosive Bombs appear more often",
+            "sprite": "",
+            "cost": 1000,
+            "effects":
+            {
+                "bombsEnabled": 1,
+                "bombsFrequencyBase": -2
+            }
+        },
+        {
+            "internalName": "3",
+            "displayName": "Voodoo Bomb",
+            "description": "Match Bombs for colossal explosions.",
+            "sprite": "",
+            "cost": 2000,
+            "effects":
+            {
+                "bombsEnabled": 1,
+                "bombsFrequencyBase": -2,
+                "bombsExplosionRadius": 21
+            }
+        }
     ]
 }

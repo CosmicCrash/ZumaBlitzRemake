@@ -3,8 +3,40 @@
     "type": "sphereEveryNthShot",
     "sphere": -1,
     "levels": [
-        {"interval": 15},
-        {"interval": 13},
-        {"interval": 11}
+        {
+            "internalName": "9",
+            "displayName": "Wild Shot",
+            "description": "Your frog fires a Wild ball that matches anything.",
+            "sprite": "",
+            "cost": 500,
+            "effects":
+            {
+                "wildBallEnabled": 1
+            }
+        },
+        {
+            "internalName": "10",
+            "displayName": "d10 Wild Shot",
+            "description": "Your frog gets more Wild balls per game.",
+            "sprite": "",
+            "cost": 1000,
+            "effects":
+            {
+                "wildBallEnabled": 1,
+                "wildBallThreshold": -2
+            }
+        },
+        {
+            "internalName": "11",
+            "displayName": "d20 Wild Shot",
+            "description": "Wild ball appears after every tenth shot.",
+            "sprite": "",
+            "cost": 2000,
+            "effects":
+            {
+                "wildBallEnabled": 1,
+                "wildBallThreshold": -5
+            }
+        }
     ]
 }

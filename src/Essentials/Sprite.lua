@@ -61,6 +61,7 @@ function Sprite:getFrame(state, frame)
 	-- and we will convert to a vector instead.
 	local vec2_frame = {x=0, y=0}
 	if type(frame) == "number" then
+		frame = math.floor(frame)
 		frame = math.max(frame, 1) -- enforce min frame of 1
 		frame = math.min(frame, s.frameCount.x * s.frameCount.y) -- max frame is the number of frames is the x*y grid
 

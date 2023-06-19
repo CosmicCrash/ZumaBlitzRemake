@@ -81,7 +81,9 @@ _DiscordRPC = nil
 
 
 -- CALLBACK ZONE
-function love.load()
+function love.load(args)
+	local msg = args[1] or 'no arguments'
+	--print (msg)
 	--local s = loadFile("test.txt")
 	--print(s)
 	--print(jsonBeautify(s))
@@ -95,11 +97,10 @@ function love.load()
 	_EngineSettings = Settings("settings.json")
 	_DiscordRPC = DiscordRichPresence()
 	
-    -- If autoload.txt exists, load the game name from there
-    local autoload = _LoadFile("autoload.txt") or nil
-	if autoload then
-        _LoadGame(autoload)
-    else
+    -- Autoload ZBR by default, there is no need to access the boot screen unless requested
+	if msg ~= "boot" and msg ~= "--boot" then
+		_LoadGame("ZumaBlitzRemake")
+	else
 		_LoadBootScreen()
 	end
 end

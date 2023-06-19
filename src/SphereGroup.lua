@@ -712,36 +712,33 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		_Game:playSound(comboSoundParams.name, comboSoundParams.pitch, pos)
 	end
 
-	-- speed bonus - max x12
-	-- TODO: Variables for food that may affect the speed timer, and speed bonus, as well as max increments allowed
+	-- speed bonus
 	if self.map.level.speedTimer <= 0 then
-		self.map.level.speedBonus = 0
+		self.map.level.speedBonusIncrement = 0
 	end
 
-	if self.map.level.speedBonus < (12*10) then
-		self.map.level.speedBonus = self.map.level.speedBonus + 10
+	if self.map.level.speedBonusIncrement < self.map.level:getParameter("speedBonusMaxMult") then
+		self.map.level.speedBonusIncrement = self.map.level.speedBonusIncrement + 1
 	end
 	
-	self.map.level.speedTimer = 2.75
+	self.map.level.speedTimer = self.map.level:getParameter("speedBonusTimeBase")
 
-		local speedShot = _Game:getCurrentProfile():getEquippedPower("speed_shot")
-		local powerSpeedBonusMultiplier = (speedShot and speedShot:getCurrentLevelData().speedBonusMultiplier) or 1
-		local finalSpeedBonus = self.map.level.speedBonus * powerSpeedBonusMultiplier
+		local finalSpeedBonus = self.map.level.speedBonusIncrement * self.map.level:getParameter("speedBonusPointsBase")
 
 	-- Calculate and grant score.
-	local score = length * (10 + finalSpeedBonus)
+	local score = length * (self.map.level:getParameter("matchPointsBase") + finalSpeedBonus)
 
 	-- Calculate score from chain bonus
 	local finalChainBonus = 0
 	if boostCombo then
-        if self.map.level.combo > 5 then
-            finalChainBonus = 100 + ((self.map.level.combo - 6) * 10)
+        if self.map.level.combo >= self.map.level:getParameter("chainBonusChainMin") then
+            finalChainBonus = self.map.level:getParameter("chainBonusPointsBase") + ((self.map.level.combo - self.map.level:getParameter("chainBonusChainMin")) * self.map.level:getParameter("chainBonusPointsInc"))
             -- Starting from Chain x10, grant +500 to score,
 			-- then add +250 every 5th chain
-            if self.map.level.combo == 10 then
-                finalChainBonus = finalChainBonus + 500
-			elseif self.map.level.combo > 10 and score % 5 == 0 then
-				finalChainBonus = finalChainBonus + 250
+            if self.map.level.combo == self.map.level:getParameter("chainBonusJackpotStart") then
+                finalChainBonus = finalChainBonus + self.map.level:getParameter("chainBonusJackpotPoints")
+			elseif self.map.level.combo > self.map.level:getParameter("chainBonusJackpotStart") and score % self.map.level:getParameter("chainBonusJackpotEach") == 0 then
+				finalChainBonus = finalChainBonus + self.map.level:getParameter("chainBonusJackpotEachPoints")
 			end
 			score = score + finalChainBonus
 		end
@@ -751,7 +748,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
     -- Combos give score + 1000 x combo
 	local finalComboBonus = 0
 	if effectConfig.applyChainMultiplier then
-		finalComboBonus = (1000 * (self.sphereChain.combo - 1))
+		finalComboBonus = (self.map.level:getParameter("comboBonusPointsBase") * (self.sphereChain.combo - 1))
 		score = score + finalComboBonus
     end
 
@@ -761,7 +758,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		local largestGap = math.max(unpack(gaps))
 
 		-- adjustment to largest gap size
-		largestGap = largestGap - 64
+		largestGap = largestGap - 64 - self.map.level:getParameter("gapMinAdjustment")
 		if largestGap < 0 then
 			largestGap = 0
 		end
@@ -771,8 +768,19 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		--gapbonus = _MathRoundDown(gapbonus, 10) * #gaps
 
 		-- regular gap algo
-		gapbonus = math.max(((300 - largestGap) / 300) * 10000, 50)
-		gapbonus = _MathRoundDown(gapbonus, 10) * #gaps
+		-- apply a certain multiplier based on number of gaps:
+		local gapMultiplier = 1
+		if #gaps == 1 then 
+			gapMultiplier = self.map.level:getParameter("gapMultSingle")
+		elseif #gaps == 2 then  
+			gapMultiplier = self.map.level:getParameter("gapMultDouble")
+		elseif #gaps >= 3 then  
+			gapMultiplier = self.map.level:getParameter("gapMultTriple")
+		end
+
+		local gapMax = self.map.level:getParameter("gapGapMax")
+		gapbonus = math.max(((gapMax - largestGap) / gapMax) * self.map.level:getParameter("gapPointsBase"), self.map.level:getParameter("gapPointMin"))
+		gapbonus = _MathRoundDown(gapbonus, self.map.level:getParameter("gapPointsRounding")) * gapMultiplier
 
 		score = score + gapbonus
     end

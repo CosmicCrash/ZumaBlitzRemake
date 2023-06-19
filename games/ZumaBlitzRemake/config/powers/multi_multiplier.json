@@ -3,12 +3,26 @@
     "type": "startingMultiplierModifier",
     "levels": [
         {
+            "internalName": "21",
             "displayName": "Doubler",
-            "additiveAmount": 1
+            "description": "Score multiplier starts at 2.",
+            "sprite": "",
+            "cost": 2000,
+            "effects":
+            {
+                "multiplierStarting": 1
+            }
         },
         {
+            "internalName": "22",
             "displayName": "Tripler",
-            "additiveAmount": 2
+            "description": "Score multiplier starts at 3.",
+            "sprite": "",
+            "cost": 4000,
+            "effects":
+            {
+                "multiplierStarting": 2
+            }
         }
     ]
 }
