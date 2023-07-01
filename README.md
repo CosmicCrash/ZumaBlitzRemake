@@ -1,7 +1,7 @@
 <p align="center"><img src="https://raw.githubusercontent.com/ZumaBlitzRemake/ZumaBlitzRemake/master/games/ZumaBlitzRemake/images/splash/logo.png"></p>
 
 
-[![Discord](https://img.shields.io/discord/315202394118029314?color=%235865F2&label=Discord%20&logo=discord&style=flat-square)](https://discord.gg/gJgy5x5)
+[![Discord](https://img.shields.io/discord/315202394118029314?color=%235865F2&label=Discord%20&logo=discord&style=flat-square)](https://discord.gg/weplaywithballs)
 
 A preservation & recreation project for **Zuma Blitz Kroakatoa Island** using [OpenSMCE](https://github.com/jakubg1/OpenSMCE).
 
