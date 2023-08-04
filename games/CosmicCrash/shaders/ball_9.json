@@ -1,0 +1,50 @@
+{
+	"vertexShader": "shaders/ball.glsl",
+	"pixelShader": "shaders/ball.glsl",
+	"parameters": [
+		{
+			"type": "image",
+			"name": "mask",
+			"init": "images/game/ball_9/mask.png"
+		},
+		{
+			"type": "image",
+			"name": "cb_overlay",
+			"init": "images/game/ball_9/cb_overlay.png"
+		},
+		{
+			"type": "number",
+			"name": "cb_overlay_factor",
+			"init": 0.0
+		},
+		{
+			"type": "color",
+			"name": "ball_color",
+			"init": [ 0.914, 0.329, 0.125, 1.0 ]
+		},
+		{
+			"type": "number",
+			"name": "powerup_transition",
+			"init": 0.0
+		},
+		{
+			"type": "image",
+			"name": "powerup_main",
+			"init": "images/game/ball_powerup/color.png"
+		},
+		{
+			"type": "image",
+			"name": "powerup_mask",
+			"init": "images/game/ball_powerup/mask.png"
+		},
+		{
+			"type": "image",
+			"name": "powerup_icon"
+		},
+		{
+			"type": "transform",
+			"name": "icon_transform"
+		}
+	],
+    "internal": false
+}

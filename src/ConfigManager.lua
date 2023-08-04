@@ -24,8 +24,8 @@ function ConfigManager:new()
 	-- Load all game resources.
 	-- The load list is loaded to ensure that no resource will be loaded twice.
 	self.loadList = _LoadJson(_ParsePath("config/loadlist.json"))
-	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
-	local resourcePaths = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
+	local resourceTypes = {"images", "shaders", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
+	local resourcePaths = {"images", "shaders", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
 	self.resourceList = {}
 	for i, type in ipairs(resourceTypes) do
 		-- For each type...

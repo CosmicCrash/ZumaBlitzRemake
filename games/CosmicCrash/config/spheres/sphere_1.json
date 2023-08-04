@@ -1,6 +1,6 @@
 {
     "$schema": "../../../../schemas/config/Sphere.json",
-	"spriteRollingSpeed": 1.15,
+    "spriteRollingSpeed": 1.5708,
     "sprite": "sprites/game/ball_1.json",
     "destroyParticle": "particles/collapse_ball_1.json",
     "powerupSprites": {

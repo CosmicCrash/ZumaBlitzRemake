@@ -12,6 +12,7 @@ local SoundEvent = require("src.Essentials.SoundEvent")
 local Music = require("src.Essentials.Music")
 local Font = require("src.Essentials.Font")
 local ColorPalette = require("src.Essentials.ColorPalette")
+local Shader = require("src.Essentials.Shader")
 
 local UI2AnimationConfig = require("src.Configs.UI2Animation")
 local UI2NodeConfig = require("src.Configs.UI2Node")
@@ -22,6 +23,7 @@ local UI2SequenceConfig = require("src.Configs.UI2Sequence")
 ---Constructs a Resource Manager.
 function ResourceManager:new()
 	self.images = {}
+	self.shaders = {}
 	self.sprites = {}
 	self.sounds = {}
 	self.soundEvents = {}
@@ -34,6 +36,7 @@ function ResourceManager:new()
 
 	self.resources = {
 		image = {t = self.images, c = Image, e = "image"},
+		shader = {t = self.shaders, c = Shader, e = "shader"},
 		sprite = {t = self.sprites, c = Sprite, e = "sprite"},
 		sound = {t = self.sounds, c = Sound, e = "sound"},
 		soundEvent = {t = self.soundEvents, c = SoundEvent, e = "sound event"},
@@ -64,13 +67,13 @@ function ResourceManager:update(dt)
 	end
 
 	if self.stepLoading then
-		
+
 	-- Load as many assets as we can within the span of a few frames
 	local stepLoadStart = love.timer.getTime()
 	local stepLoadEnd = 0
 
 		while stepLoadEnd < 0.05 do
-			
+
 			self:stepLoadNext()
 
 			stepLoadEnd = stepLoadEnd + (love.timer.getTime() - stepLoadStart)
@@ -98,6 +101,20 @@ function ResourceManager:getImage(path)
 	return self:getResource("image", path)
 end
 
+
+
+---Loads a Shader from a given path.
+---@param path string The resource path.
+function ResourceManager:loadShader(path)
+	self:loadResource("shader", path)
+end
+
+---Retrieves a Shader by a given path.
+---@param path string The resource path.
+---@return Shader
+function ResourceManager:getShader(path)
+	return self:getResource("shader", path)
+end
 
 
 ---Loads a Sprite from a given path.
@@ -245,6 +262,9 @@ function ResourceManager:loadList(list)
 	if list.images then
 		for i, path in ipairs(list.images) do self:loadImage(path) end
 	end
+	if list.shaders then
+		for i, path in ipairs(list.shaders) do self:loadShader(path) end
+	end
 	if list.sprites then
 		for i, path in ipairs(list.sprites) do self:loadSprite(path) end
 	end
@@ -290,7 +310,7 @@ end
 ---Loads a next resource in the queued resource loading process.
 function ResourceManager:stepLoadNext()
 	local objectType = nil
-	local order = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "colorPalettes"}
+	local order = {"images", "shaders", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "colorPalettes"}
 	-- loading a first object type from order
 	for i, v in ipairs(order) do
 		if self.stepLoadQueue[v] then
@@ -304,6 +324,8 @@ function ResourceManager:stepLoadNext()
 	-- load
 	if objectType == "images" then
 		self:loadImage(data)
+	elseif objectType == "shaders" then
+		self:loadShader(data)
 	elseif objectType == "sprites" then
 		self:loadSprite(data)
 	elseif objectType == "sounds" then

@@ -70,7 +70,7 @@ function SphereChain:update(dt)
 			end
 		end
 	end
-	
+
 	-- Update all sphere groups.
 	-- Ultra-Safe Loop (TM)
 	local i = 1
@@ -190,7 +190,7 @@ function SphereChain:isPushingFrontTrain()
 	if prevChain and not prevChain.delQueue then
 		-- Check whether this sphere chain collides with a front one. If so, return true.
 		local dist = prevChain:getLastSphereGroup():getSphereOffset(1) - self.sphereGroups[1]:getLastSphereOffset()
-		return dist <= 29
+		return dist <= 34
 	end
 end
 
@@ -242,7 +242,7 @@ function SphereChain:generateSphere()
 		self.path.curClump = 1
 		self.path.curSingles = self.path.curSingles + 1
 		--_Log:printt("Cur Singles", "-> " .. self.path.curSingles)
-	else	
+	else
 		self.path.curClump = self.path.curClump + 1
 		self.path.curSingles = 0
 		--_Log:printt("Cur Clumps", "-> " .. self.path.curClump)

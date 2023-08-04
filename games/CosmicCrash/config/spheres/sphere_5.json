@@ -1,23 +1,9 @@
 {
     "$schema": "../../../../schemas/config/Sphere.json",
-	"spriteRollingSpeed": 1.15,
+    "spriteRollingSpeed": 1.5708,
     "sprite": "sprites/game/ball_5.json",
     "colorblindSprite": "sprites/game/ball_5_cb.json",
     "destroyParticle": "particles/collapse_ball_5.json",
-    "powerupSprites": {
-        "timeball": "sprites/game/time_ball_5.json",
-        "multiplier": "sprites/game/multiplier_ball_5.json",
-        "bombs": "sprites/game/bombs_ball_5.json",
-        "cannons": "sprites/game/cannons_ball_5.json",
-        "colornuke": "sprites/game/colornuke_ball_5.json"
-    },
-    "colorblindPowerupSprites": {
-        "timeball": "sprites/game/time_ball_5_cb.json",
-        "multiplier": "sprites/game/multiplier_ball_5_cb.json",
-        "bombs": "sprites/game/bombs_ball_5_cb.json",
-        "cannons": "sprites/game/cannons_ball_5_cb.json",
-        "colornuke": "sprites/game/colornuke_ball_5_cb.json"
-    },
     "color": {
         "r": 1,
         "g": 0,
