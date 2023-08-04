@@ -28,8 +28,8 @@ local ThreadManager = require("src.ThreadManager")
 
 
 -- CONSTANT ZONE
-_VERSION = "vZB"
-_VERSION_NAME = "Zuma Blitz Remake Fork"
+_VERSION = "vCC"
+_VERSION_NAME = "Cosmic Crash Fork"
 _DISCORD_APPLICATION_ID = "797956172539887657"
 _START_TIME = love.timer.getTime()
 
@@ -99,7 +99,7 @@ function love.load(args)
 	
     -- Autoload ZBR by default, there is no need to access the boot screen unless requested
 	if msg ~= "boot" and msg ~= "--boot" then
-		_LoadGame("ZumaBlitzRemake")
+		_LoadGame("CosmicCrash")
 	else
 		_LoadBootScreen()
 	end

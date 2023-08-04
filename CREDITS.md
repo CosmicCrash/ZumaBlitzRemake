@@ -1,4 +1,4 @@
-# Zuma Blitz Remake Credits
+# Cosmic Crash Credits
 ## Project Leads
 - **jakubg1** - OpenSMCE developer, lead programmer
   - GitHub: [jakubg1](https://github.com/jakubg1)
@@ -9,7 +9,7 @@
   - Discord: Shambles#3117
 
 ## Contributors
-- **Brendan Chan** - Zuma Blitz SWF file contribution
+- **Brendan Chan** - Porting mechanics from Zuma Blitz
   - GitHub: [bchantech](https://github.com/bchantech)
   - Discord: bchan#9445
 - **Cat Warrior** - Asset contributions
