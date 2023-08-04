@@ -8,7 +8,13 @@ local SphereEntity = class:derive("SphereEntity")
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
 
-
+local PowerupTextures = {
+	timeball = "images/game/ball_powerup/time.png",
+	multiplier = "images/game/ball_powerup/multiplierx.png",
+	bombs = "images/game/ball_powerup/bomb.png",
+	trishot = "images/game/ball_powerup/cannon.png",
+	colornuke = "images/game/ball_powerup/colorbomb.png",
+}
 
 ---Constructs a new Sphere Entity.
 ---@param pos Vector2 The initial position of this Sphere Entity.
@@ -20,6 +26,7 @@ function SphereEntity:new(pos, color)
 	self.colorM = Color()
 	self.color = color
 	self.powerup = nil
+	self.powerupTransition = 0
 
 	self.config = _Game.configManager.spheres[color]
 
@@ -33,24 +40,7 @@ end
 ---Gets the current sprite which is dependent on Colorblind Mode.
 ---@return Sprite
 function SphereEntity:getSprite()
-    if self.powerup then
-		if _Game.runtimeManager.options:getColorblindMode() and self.config.colorblindPowerupSprites and self.config.colorblindPowerupSprites[self.powerup] then
-			return _Game.resourceManager:getSprite(self.config.colorblindPowerupSprites[self.powerup])
-		else
-			if self.config.powerupSprites and self.config.powerupSprites[self.powerup] then
-				return _Game.resourceManager:getSprite(self.config.powerupSprites[self.powerup])
-			else
-				print("ERROR: powerupSprites was not defined")
-				return _Game.resourceManager:getSprite(self.config.sprite)
-			end
-		end
-    else
-		if _Game.runtimeManager.options:getColorblindMode() and self.config.colorblindSprite then
-			return _Game.resourceManager:getSprite(self.config.colorblindSprite)
-		else
-			return _Game.resourceManager:getSprite(self.config.sprite)
-		end
-	end
+	return _Game.resourceManager:getSprite(self.config.sprite)
 end
 
 
@@ -144,7 +134,20 @@ function SphereEntity:draw(shadow)
 		if self.powerup == "multiplier" then
 			multiplierState = _Game.session.level.multiplier
 		end
-		self:getSprite():draw(self.pos, Vec2(0.5), multiplierState, self.frame, self.angle, self.colorM)
+		local s = self:getSprite()
+		if s.shader then
+			s.shader:send('powerup_transition',self.powerup and 1 or 0)
+			s.shader:send('icon_transform',
+				0,0,
+				self.angle,
+				1,1,
+				0,0
+			)
+			if self.powerup then
+				s.shader:send('powerup_icon',PowerupTextures[self.powerup])
+			end
+		end
+		s:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM)
 	end
 end
 

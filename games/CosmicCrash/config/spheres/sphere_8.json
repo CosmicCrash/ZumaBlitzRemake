@@ -1,0 +1,25 @@
+{
+    "$schema": "../../../../schemas/config/Sphere.json",
+    "spriteRollingSpeed": 1.5708,
+    "sprite": "sprites/game/ball_8.json",
+    "destroyParticle": "particles/collapse_ball_8.json",
+    "color": {
+        "r": 0,
+        "g": 1,
+        "b": 1
+    },
+    "interchangeable": true,
+    "shootBehavior": {
+        "type": "normal"
+    },
+    "shootSound": "sound_events/sphere_shoot_normal.json",
+    "hitBehavior": {
+        "type": "normal"
+    },
+    "hitSound": "sound_events/sphere_hit_normal.json",
+    "matches": [
+        -1,
+        8
+    ],
+    "matchFont": "fonts/score0.json"
+}

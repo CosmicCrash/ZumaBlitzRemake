@@ -242,7 +242,7 @@ function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects
 	end
 	-- if it's a first sphere in the group, lower the offset
 	if position == 1 then
-		self.offset = self.offset - 29
+		self.offset = self.offset - 34
 		self:updateSphereOffsets()
 	end
 	sphere:updateOffset()
@@ -265,7 +265,7 @@ function SphereGroup:destroySphere(position, crushed)
 	if position == 1 then
 		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
-		self.offset = self.offset + 29
+		self.offset = self.offset + 34
 		self:updateSphereOffsets()
 		self:checkUnfinishedDestructionAtSpawn()
 	elseif position == #self.spheres then
@@ -300,7 +300,7 @@ function SphereGroup:destroySpheres(position1, position2)
 			self.spheres[1]:delete()
 			table.remove(self.spheres, 1)
 		end
-		self.offset = self.offset + position2 * 29
+		self.offset = self.offset + position2 * 34
 		self:updateSphereOffsets()
 		self:checkUnfinishedDestructionAtSpawn()
 	elseif position2 == #self.spheres then -- or maybe on the end?
@@ -698,7 +698,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
         -- NOTE: Zuma Blitz does not pitch/repeat the Gap Bonus sound in case of double+ gap bonuses.
         _Game:playSound("sound_events/gap_bonus.json")
     end
-	
+
 	-- Boost chain and combo values.
 	if effectConfig.canBoostChain then
 		self.sphereChain.combo = self.sphereChain.combo + 1
@@ -721,7 +721,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	if self.map.level.speedBonusIncrement < self.map.level:getParameter("speedBonusMaxMult") then
 		self.map.level.speedBonusIncrement = self.map.level.speedBonusIncrement + 1
 	end
-	
+
 	self.map.level.speedTimer = self.map.level:getParameter("speedBonusTimeBase")
 
 		local finalSpeedBonus = self.map.level.speedBonusIncrement * self.map.level:getParameter("speedBonusPointsBase")
@@ -771,11 +771,11 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		-- regular gap algo
 		-- apply a certain multiplier based on number of gaps:
 		local gapMultiplier = 1
-		if #gaps == 1 then 
+		if #gaps == 1 then
 			gapMultiplier = self.map.level:getParameter("gapMultSingle")
-		elseif #gaps == 2 then  
+		elseif #gaps == 2 then
 			gapMultiplier = self.map.level:getParameter("gapMultDouble")
-		elseif #gaps >= 3 then  
+		elseif #gaps >= 3 then
 			gapMultiplier = self.map.level:getParameter("gapMultTriple")
 		end
 
@@ -1236,7 +1236,7 @@ end
 
 
 function SphereGroup:getBackPos()
-	return self:getSphereOffset(1) - 29 * self.spheres[1].size + 16
+	return self:getSphereOffset(1) - 34 * self.spheres[1].size + 16
 end
 
 
@@ -1429,7 +1429,7 @@ function SphereGroup:deserialize(t)
 			-- until a powerup is given
 			s.powerupTimeout = sphere.powerupTimeout or 0
 		end
-		offset = offset + 29 * s.size
+		offset = offset + 34 * s.size
 	end
 	self.matchCheck = t.matchCheck
 end

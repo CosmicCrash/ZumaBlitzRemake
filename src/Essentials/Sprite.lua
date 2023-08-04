@@ -7,6 +7,7 @@ local Sprite = class:derive("Sprite")
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
 local Image = require("src.Essentials.Image")
+local Shader = require("src.Essentials.Shader")
 
 
 
@@ -36,6 +37,11 @@ function Sprite:new(path)
 			end
 		end
 		self.states[i] = s
+	end
+	if data.shader then
+		self.shader = data.internal and
+			Shader(_ParsePath(data.shader)) or
+			_Game.resourceManager:getShader(data.shader)
 	end
 end
 
@@ -67,7 +73,7 @@ function Sprite:getFrame(state, frame)
 
 		vec2_frame.x = 1 + ((frame-1) % s.frameCount.x)
 		vec2_frame.y = 1 + (math.floor((frame-1) / s.frameCount.x))
-		vec2_frame.y = math.min(vec2_frame.y, s.frameCount.y) 
+		vec2_frame.y = math.min(vec2_frame.y, s.frameCount.y)
 	else
 		vec2_frame = frame
 	end
@@ -120,7 +126,11 @@ function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale, blendMo
 	---@diagnostic disable-next-line: param-type-mismatch
     love.graphics.setBlendMode(blendMode)
 
+    if self.shader then self.shader:set() end
+
 	self.img:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
+
+	if self.shader then self.shader:reset() end
 end
 
 

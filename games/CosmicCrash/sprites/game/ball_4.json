@@ -1,8 +1,9 @@
 {
-    "path": "images/game/ball_4.png",
+    "path": "images/game/ball_4/color.png",
+    "shader": "shaders/ball_4.json",
     "frame_size": {
-        "x": 29,
-        "y": 29
+        "x": 36,
+        "y": 36
     },
     "states": [
         {
@@ -11,7 +12,7 @@
                 "y": 0
             },
             "frames": {
-                "x": 60,
+                "x": 80,
                 "y": 1
             }
         }

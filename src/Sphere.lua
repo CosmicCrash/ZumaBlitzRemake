@@ -175,7 +175,7 @@ end
 ---Recalculates the offset this Sphere has from the offset of the Sphere Group it belongs to.
 function Sphere:updateOffset()
 	-- calculate the offset
-	self.offset = self.prevSphere and self.prevSphere.offset + 29 * self.size or 0
+	self.offset = self.prevSphere and self.prevSphere.offset + 34 * self.size or 0
 end
 
 
@@ -294,7 +294,7 @@ function Sphere:deleteVisually(ghostTime, crushed)
 				if self.map.level.chronoBallsMatched % self.map.level:getParameter("timeBallsExtraBonusCount") == 0 then
 					secs = secs + self.map.level:getParameter("timeBallsExtraBonusTime")
 				end
-				
+
 				self.map.level:applyEffect({type = "addTime", amount = secs})
 				self.map.level:spawnFloatingText(
 					string.format("+%d SECONDS", secs),
@@ -314,13 +314,13 @@ function Sphere:deleteVisually(ghostTime, crushed)
 				)
 			end,
             cannons = function()
-				self.map.level.cannonsMatched = self.map.level.cannonsMatched + 1				
+				self.map.level.cannonsMatched = self.map.level.cannonsMatched + 1
 				self.map.level.shooter:getMultiSphere(-6, 1)
 
 			end,
 			-- TODO: Add bomb effect
             bombs = function()
-				self.map.level.bombsMatched = self.map.level.bombsMatched + 1				
+				self.map.level.bombsMatched = self.map.level.bombsMatched + 1
 			end,
 			-- TODO: Add color nuke effect
             colornuke = function()
@@ -597,7 +597,7 @@ end
 ---Returns `true` if this sphere has not escaped the spawn point.
 ---@return boolean
 function Sphere:isOffscreen()
-	return self:getOffset() < 29
+	return self:getOffset() < 34
 end
 
 
@@ -629,11 +629,7 @@ function Sphere:draw(color, hidden, shadow)
 
 	-- Update the entity position.
 	self.entity:setPos(pos)
-	if self.powerup then
-        self.entity:setAngle(0)
-    else
-		self.entity:setAngle(angle)
-	end
+	self.entity:setAngle(angle)
 	self.entity:setFrame(frame)
 	self.entity:setColorM(colorM)
 
