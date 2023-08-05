@@ -1,6 +1,7 @@
 {
     "$schema": "../../../../schemas/config/Sphere.json",
     "sprite": "sprites/game/ball_lightning.json",
+    "size": 34,
     "spriteAnimationSpeed": 16,
     "idleParticle": "particles/idle_ball_lightning.json",
     "destroyParticle": "particles/lightning_beam.json",

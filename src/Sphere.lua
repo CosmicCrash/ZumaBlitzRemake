@@ -662,7 +662,7 @@ function Sphere:draw(color, hidden, shadow)
 
 	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
 
-	local scale = self:getScale() * self.size / 32
+	local scale = self:getScale()
 
 	local frame = Vec2(1)
 	if self.config.spriteAnimationSpeed then
