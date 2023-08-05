@@ -22,13 +22,16 @@ local PowerupTextures = {
 function SphereEntity:new(pos, color)
 	self.pos = pos
 	self.angle = 0
+	self.scale = Vec2(1)
 	self.frame = Vec2(1)
 	self.colorM = Color()
 	self.color = color
+	self.alpha = 1
 	self.powerup = nil
 	self.powerupTransition = 0
 
 	self.config = _Game.configManager.spheres[color]
+	self.config.shadowOffset = _ParseVec2(self.config.shadowOffset) or Vec2(4)
 
 	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
 	self.shouldRotate = true
@@ -73,6 +76,14 @@ end
 
 
 
+---Sets the size of the sphere entity. 1 is natural size.
+---@param scale number The new scale.
+function SphereEntity:setScale(scale)
+	self.scale = Vec2(scale)
+end
+
+
+
 ---Sets the frame of this sphere entity to be displayed.
 ---@param frame Vector2 The animation frame of this Sphere Entity's sprite.
 function SphereEntity:setFrame(frame)
@@ -94,6 +105,8 @@ end
 function SphereEntity:setColor(color)
 	self.color = color
 	self.config = _Game.configManager.spheres[color]
+	self.config.shadowOffset = _ParseVec2(self.config.shadowOffset) or Vec2(4)
+	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
 
 	-- Particle stuff
 	if self.particle then
@@ -103,6 +116,14 @@ function SphereEntity:setColor(color)
 	if self.config.idleParticle then
 		self.particle = _Game:spawnParticle(self.config.idleParticle, self.pos)
 	end
+end
+
+
+
+---Sets the alpha of this sphere entity. This does not affect any particles attached to it.
+---@param alpha number The transparency of this entity, from `0` (fully invisible) to `1` (fully visible).
+function SphereEntity:setAlpha(alpha)
+	self.alpha = alpha
 end
 
 
@@ -128,7 +149,7 @@ end
 ---@param shadow boolean? If set to `true`, the shadow of this entity will be drawn instead of the sphere itself.
 function SphereEntity:draw(shadow)
 	if shadow then
-		self.shadowSprite:draw(self.pos + Vec2(4), Vec2(0.5))
+		self.shadowSprite:draw(self.pos + self.config.shadowOffset, Vec2(0.5), nil, nil, self.angle, nil, self.alpha, self.scale)
     else
         local multiplierState = nil
 		if self.powerup == "multiplier" then
@@ -147,7 +168,7 @@ function SphereEntity:draw(shadow)
 				s.shader:send('powerup_icon',PowerupTextures[self.powerup])
 			end
 		end
-		s:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM)
+		s:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM, self.alpha, self.scale)
 	end
 end
 

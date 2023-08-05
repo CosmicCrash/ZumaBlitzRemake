@@ -26,6 +26,7 @@ function Shooter:new(data)
     self.color = 0
     self.nextColor = 0
     self.shotCooldown = nil
+    self.shotCooldownFade = nil
     self.speedShotSpeed = 0
     self.speedShotTime = 0
     self.speedShotAnim = 0
@@ -127,6 +128,30 @@ function Shooter:update(dt)
         self.shotCooldown = self.shotCooldown - dt
         if self.shotCooldown <= 0 then
             self.shotCooldown = nil
+            self.shotCooldownFade = self.config.shotCooldownFade
+        end
+    end
+    -- shot cooldown fade
+    if self.shotCooldownFade then
+        self.shotCooldownFade = self.shotCooldownFade - dt
+        if self.shotCooldownFade <= 0 then
+            self.shotCooldownFade = nil
+        end
+    end
+
+    -- knockback
+    if self.knockbackTime > 0 then
+        self.knockbackTime = self.knockbackTime - dt
+
+        if self.knockbackTime > 0 then
+            if self.knockbackTime > 0.1 then
+                self.pos = self.pos + Vec2(0, 1.15):rotate(self.knockbackAngle)
+            else
+                self.pos = self.pos + Vec2(0, -1.15):rotate(self.knockbackAngle)
+            end
+        else
+            self.knockbackTime = 0
+            self.pos = Vec2(self.movement.x or self.pos.x, self.movement.y or self.pos.y)
         end
     end
 
@@ -150,10 +175,10 @@ function Shooter:update(dt)
     if self:isActive() then
         -- remove nonexistent colors, but only if the current color generator allows removing these colors
         local remTable = _Game.session.level:getCurrentColorGenerator().colorsRemoveIfNonexistent
-        if _MathIsValueInTable(remTable, self.color) and not _Game.session.colorManager:isColorExistent(self.color) then
+        if remTable and _MathIsValueInTable(remTable, self.color) and not _Game.session.colorManager:isColorExistent(self.color) then
             self:setColor(0)
         end
-        if _MathIsValueInTable(remTable, self.nextColor) and not _Game.session.colorManager:isColorExistent(self.nextColor) then
+        if remTable and _MathIsValueInTable(remTable, self.nextColor) and not _Game.session.colorManager:isColorExistent(self.nextColor) then
             self:setNextColor(0)
         end
         self:fill()
@@ -228,7 +253,7 @@ end
 ---Swaps this and next sphere colors with each other, if possible.
 function Shooter:swapColors()
     -- we must be careful not to swap the spheres when they're absent
-    if _Game.session.level.pause or self.color == 0 or self.nextColor == 0 or not self:getSphereConfig().interchangeable then
+    if _Game.session.level.pause or self.color == 0 or self.nextColor == 0 or self.shotCooldownFade or not self:getSphereConfig().interchangeable then
         return
     end
     local tmp = self.color
@@ -299,7 +324,7 @@ function Shooter:shoot()
     end
 
     -- if nothing to shoot, it's pointless
-    if _Game.session.level.pause or not self:isActive() or self.color == 0 then
+    if _Game.session.level.pause or not self:isActive() or self.shotCooldownFade or self.color == 0 then
         return
     end
     -- add to stat if a hot frog shot is fired (-2)
@@ -324,10 +349,10 @@ function Shooter:shoot()
     
             for i = 1, orbs_per_shot do
                 local fire_angle = self.angle + math.rad(shot_angle_offset + (shot_angle * i))
-                _Game.session.level:spawnShotSphere(self, self:getSpherePos(), fire_angle, self.color, self:getShootingSpeed())
+                _Game.session.level:spawnShotSphere(self, self:getSpherePos(), fire_angle, self:getSphereSize(), self.color, self:getShootingSpeed())
             end
         else
-            _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.angle, self.color, self:getShootingSpeed())
+            _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.angle, self:getSphereSize(), self.color, self:getShootingSpeed())
         end
         
         self.sphereEntity = nil
@@ -423,7 +448,9 @@ function Shooter:draw()
     if self.sphereEntity and not self.shotCooldown then
         self.sphereEntity:setPos(self:getSpherePos())
         self.sphereEntity:setAngle(self.angle)
+        self.sphereEntity:setScale(self:getSphereSize() / 32)
         self.sphereEntity:setFrame(self:getSphereFrame())
+        self.sphereEntity:setAlpha(self:getSphereAlpha())
         self.sphereEntity:draw()
     end
     -- next color
@@ -467,8 +494,9 @@ function Shooter:draw()
         end
     end
 
-    --local p4 = posOnScreen(self.pos)
-    --love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
+	if _Debug.sphereDebugVisible2 then
+		self:drawDebug()
+	end
 end
 
 
@@ -567,6 +595,15 @@ end
 
 
 
+---Draws this Shooter's hitbox.
+function Shooter:drawDebug()
+    local p = _PosOnScreen(self.pos + self.config.hitboxOffset - self.config.hitboxSize / 2)
+    local s = self.config.hitboxSize * _GetResolutionScale()
+    love.graphics.rectangle("line", p.x, p.y, s.x, s.y)
+end
+
+
+
 ---Spawns a sphere entity which is used to draw the primary sphere.
 function Shooter:spawnSphereEntity()
     if self.color == 0 or self.sphereEntity then
@@ -636,11 +673,18 @@ end
 
 
 
+---Returns the diameter of the primary sphere.
+function Shooter:getSphereSize()
+    return self:getSphereConfig().size or 32
+end
+
+
+
 ---Returns `true` if the given position is inside this Shooter's hitbox.
 ---@param pos Vector2 The position to be checked against.
 ---@return boolean
 function Shooter:isPosCatchable(pos)
-    return math.abs(self.pos.x - pos.x) < self.config.hitboxSize.x / 2 and math.abs(self.pos.y - pos.y) < self.config.hitboxSize.y / 2
+    return math.abs(self.pos.x - pos.x + self.config.hitboxOffset.x) < self.config.hitboxSize.x / 2 and math.abs(self.pos.y - pos.y + self.config.hitboxOffset.y) < self.config.hitboxSize.y / 2
 end
 
 
@@ -717,6 +761,17 @@ function Shooter:getSphereFrame()
         return Vec2(math.floor(animationSpeed * _TotalTime), 1)
     end
     return Vec2(1)
+end
+
+
+
+---Returns the current sphere's transparency. Used in shot cooldown fade animation.
+---@return number
+function Shooter:getSphereAlpha()
+    if self.shotCooldownFade then
+        return 1 - (self.shotCooldownFade / self.config.shotCooldownFade)
+    end
+    return 1
 end
 
 

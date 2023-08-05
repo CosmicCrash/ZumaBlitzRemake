@@ -36,6 +36,17 @@ def convert_schema_type(schema):
 
 
 def convert_schema(schema, page, references, name = "", indent = 1):
+	# Alternatives use special syntax.
+	if "oneOf" in schema and not "type" in schema:
+		output = "D" + "\t" * indent + "R <div class=\"jsonChoice\">\n"
+		output += "D" + "\t" * indent + "R One of the following:\n"
+		for data in schema["oneOf"]:
+			output += convert_schema(data, page, references, name, indent)
+		output += "D" + "\t" * indent + "R </div>\n"
+		return output
+	
+	
+	
 	if name != "":
 		name += " "
 
@@ -47,19 +58,25 @@ def convert_schema(schema, page, references, name = "", indent = 1):
 	if "const" in schema:
 		# Overwrite the description and just enter the only valid value instead.
 		description = ["<b><i>\"" + schema["const"] + "\"</i></b>"]
-	if "oneOf" in schema:
+	if "oneOf" in schema or "enum" in schema:
 		# Prepare for enum generation.
 		if len(description) == 1:
 			description[0] += " Available values are:"
 		else:
 			description.append("Available values are:")
+		if "enum" in schema:
+			for i in range(len(schema["enum"])):
+				if i > 0:
+					description[-1] += ","
+				description[-1] += " <b>\"" + schema["enum"][i] + "\"</b>"
+			description[-1] += "."
 	if "$ref" in schema:
 		ref_path = schema["$ref"].split("/")
 		# If we're referencing to a full file, and not just a sturcture, add a link in the document.
-		if len(ref_path) <= 1 or ref_path[-2] != "_structures":
+		if (len(ref_path) <= 1 or ref_path[-2] != "_structures") and ref_path[0] != "#":
 			reference = ref_path[-1].split(".")[0]
 			if not reference in references:
-				message = "More info... uhh dead link :( Fix me!"
+				message = "More info... uhh dead link :( Fix me! (" + reference + ")"
 			elif page == references[reference]:
 				# The reference is located on the current page.
 				message = "<a href=\"#" + reference + "\">More info below.</a>"
@@ -97,20 +114,16 @@ def convert_schema(schema, page, references, name = "", indent = 1):
 			output += "D" + "\t" * list_indent + "R <li><b>\"" + value["const"] + "\"</b> - " + value["description"] + "</li>\n"
 		output += "D" + "\t" * list_indent + "R </ol>\n"
 
-	properties_root = None
 	if "properties" in schema:
-		properties_root = schema
-	elif "patternProperties" in schema:
-		properties_root = schema["patternProperties"][list(schema["patternProperties"].keys())[0]]
-	
-	if properties_root != None:
-		for key in properties_root["properties"]:
+		for key in schema["properties"]:
 			if key == "$schema":
 				continue
-			key_data = properties_root["properties"][key]
-			if not key in properties_root["required"]:
+			key_data = schema["properties"][key]
+			if not key in schema["required"]:
 				key += "*"
 			output += convert_schema(key_data, page, references, key, indent + 1)
+	elif "patternProperties" in schema:
+		output += convert_schema(schema["patternProperties"][list(schema["patternProperties"].keys())[0]], page, references, "", indent + 1)
 	
 	if "items" in schema:
 		output += convert_schema(schema["items"], page, references, "", indent + 1)
@@ -126,8 +139,9 @@ def convert_schema_enum(schema, page, references):
 		if i == 0:
 			continue
 		else:
-			output += "H3\t<i>" + schema["allOf"][i]["if"]["properties"]["type"]["const"] + "</i>\n"
-			output += "P\t" + schema["allOf"][i]["if"]["properties"]["type"]["description"] + "\n"
+			type_name = list(schema["allOf"][i]["if"]["properties"].keys())[0]
+			output += "H3\t<i>" + schema["allOf"][i]["if"]["properties"][type_name]["const"] + "</i>\n"
+			output += "P\t" + schema["allOf"][i]["if"]["properties"][type_name]["description"] + "\n"
 			enum_data = {
 				"type": schema["type"],
 				"description": schema["description"],
@@ -135,13 +149,19 @@ def convert_schema_enum(schema, page, references):
 				"required": schema["allOf"][i]["if"]["required"]
 			}
 			for property in schema["allOf"][i]["then"]["properties"]:
-				# Copy all properties from the "then" section, if it has a True value then borrow from the "if" section.
+				if property == "$schema":
+					continue
+				# Copy all properties from the "then" section, if it has a True value then borrow from the "if" section, or from the global properties.
 				value = schema["allOf"][i]["then"]["properties"][property]
 				if value == True:
-					value = schema["allOf"][i]["if"]["properties"][property]
+					if property in schema["allOf"][i]["if"]["properties"]:
+						value = schema["allOf"][i]["if"]["properties"][property]
+					else:
+						value = schema["properties"][property]
 				enum_data["properties"][property] = value
 			if "required" in schema["allOf"][i]["then"]:
 				enum_data["required"] += schema["allOf"][i]["then"]["required"]
+			enum_data["required"] += schema["required"]
 			
 			output += convert_schema(enum_data, page, references)
 		
@@ -156,18 +176,6 @@ def main():
 	
 	data = contents.split("\n")
 	
-	type_assoc = {
-		"Font*": "str_font",
-		"ColorPalette*": "str_palette",
-		"Particle*": "str_particle",
-		"SoundEvent*": "str_sound",
-		"Music*": "str_music",
-		"Sprite*": "str_sprite",
-		"CollectibleGenerator*": "str_collectible_generator",
-		"Expression": "expression",
-		"Vector2": "vector2"
-	}
-	
 	
 	
 	# Pass 1: Gather page and reference names
@@ -181,8 +189,8 @@ def main():
 		if line[0] == "F":
 			page_paths.append(line[1])
 		elif line[0] == "N":
-			page_names.append(line[1])
-		elif line[0] == "H2":
+			page_names.append(line[1].split(" | ")[0])
+		if line[0] == "N" or line[0] == "H2":
 			subline = line[1].split(" | ")
 			if len(subline) > 1:
 				reference_names[subline[1]] = page_paths[-1]
@@ -300,7 +308,7 @@ def main():
 			if l[0] == "-":
 				s = l[1:].split(" - ")
 				
-				description = s[1]
+				description = " - ".join(s[1:])
 				
 				s = s[0].split(" (")
 				
@@ -317,9 +325,9 @@ def main():
 				page_content += "<li>"
 				
 				for type in types:
-					type_res = type
-					if type in type_assoc:
-						type_res = type_assoc[type]
+					type_res = type.lower()
+					if type_res[-1] == "*":
+						type_res = "str_" + type_res[:-1]
 					page_content += "<img class=\"type\" src=\"icons/" + type_res + ".png\" title=\"" + type + "\" width=\"16px\" height=\"16px\">"
 				
 				if len(name) == 0:
@@ -338,7 +346,11 @@ def main():
 			page_content += line[1]
 		
 		elif line[0] == "N":
-			page_content += "<h1>" + line[1] + "</h1>"
+			subline = line[1].split(" | ")
+			if len(subline) == 1:
+				page_content += "<h1>" + subline[0] + "</h1>"
+			else:
+				page_content += "<h1 id=\"" + subline[1] + "\">" + subline[0] + "</h1>"
 		
 		elif line[0] == "H2":
 			subline = line[1].split(" | ")

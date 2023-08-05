@@ -209,6 +209,12 @@
             "description": "The minimum time between the shots, in seconds. If multishot is set to false, this time will be counted since the previous shot sphere has been appended/disappeared.",
             "markdownDescription": "The minimum time between the shots, in seconds. If `multishot` is set to `false`, this time will be counted since the previous shot sphere has been appended/disappeared."
         },
+        "shotCooldownFade": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The duration of the ball appearing animation, in seconds. During this time you can't shoot balls yet. This time is counted after shotCooldown, so the effective cooldown is this plus that value.",
+            "markdownDescription": "The duration of the ball appearing animation, in seconds. During this time you can't shoot balls yet. This time is counted after `shotCooldown`, so the effective cooldown is this plus that value."
+        },
         "multishot": {
             "type": "boolean",
             "description": "If set, the player will be able to shoot another sphere before the previous one has hit the sphere train."
@@ -217,6 +223,10 @@
             "type": "number",
             "exclusiveMinimum": 0,
             "description": "The default speed of how fast the shot spheres will be, in pixels per second."
+        },
+        "hitboxOffset": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The offset of the Shooter's hitbox in pixels."
         },
         "hitboxSize": {
             "$ref": "../_structures/Vector2.json",
@@ -239,8 +249,6 @@
         "sounds",
         "speedShotBeam",
         "speedShotParticle",
-        "shotCooldown",
-        "multishot",
         "shootSpeed",
         "hitboxSize"
     ],

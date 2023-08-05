@@ -6,26 +6,7 @@ N	Main Page
 
 P	Welcome! This guide is designed to provide a reference of all the .json files used by the game in order to build your own games or mods.
 P	This is work in progress!
-P	TBD:
-P	Configuration Files
-P	Concepts
-P	
-P	    config.json
-P	    runtime.json
-P	    config/hud_layer_order.json
-P	    config/loadlist.json
-P	    config/music.json
-P	
-P	Asset Files
-P	
-P	    Fonts
-P	    Levels
-P	    Maps
-P	    Particles
-P	    Sound Events
-P	    Sprites
-P	    UI Widgets
-P	    UI Widget Script
+H2	What needs to be done: Collectible Generators (properly), UI1 maybe?
 
 E
 
@@ -69,30 +50,6 @@ N	config.json
 P	Contains base game settings. This file is placed in the root game folder.
 P	Valid JSON structure inside this file is required for the Boot Screen to properly recognize the game. If you make a syntax error, the game will not be listed in the Boot Screen. Look in this file if your game suddenly disappears from the list!
 DI	../../schemas/config.json
-
-E
-
-
-=========================================================================================================================================================================
-
-
-F	config.highscores
-N	config/highscores.json
-
-P	Contains default scoreboard settings. These are used when launching the game for the first time or when resetting the highscores manually.
-DI	../../schemas/config/highscores.json
-
-E
-
-
-=========================================================================================================================================================================
-
-
-F	config.gameplay
-N	config/gameplay.json
-
-P	Defines behavior of various game elements.
-DI	../../schemas/config/gameplay.json
 
 E
 
@@ -199,6 +156,55 @@ E
 =========================================================================================================================================================================
 
 
+F	config.color_generators
+N	config/color_generators/*.json
+
+P	Defines a Color Generator. Color generators are used to determine which color should spawn next in the Shooter.
+DI	../../schemas/config/color_generator.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.levels
+N	config/levels/level_*.json
+
+P	Level files contain information about sphere speeds, colors, etc.
+P	Useful vocabulary: We say the player is in <i>danger</i> when the spheres are close to the end point of the path and the pyramid starts blinking.
+DI	../../schemas/config/level.json
+
+H2	Possible spawn rule types | level_spawn_rules
+P	<i>Debug information: this can be checked in SphereChain:new().</i>
+DIE	../../schemas/config/level_spawn_rules.json
+
+H2	Possible speed interpolation types | level_speed_transition
+P	<i>Debug information: this can be checked in Path:getSpeed().</i>
+DIE	../../schemas/config/level_speed_transition.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.shooter
+N	config/shooters/*.json
+
+P	Defines a Shooter.
+DI	../../schemas/config/shooter.json
+
+H2	Possible shooter movement types | shooter_movement
+P	<i>Debug information: this can be checked in Shooter:update(), Shooter:getInitialPos() and Shooter:getInitialAngle().</i>
+DIE	../../schemas/config/shooter_movement.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
 F	config.sphere_effects
 N	config/sphere_effects/*.json
 
@@ -242,42 +248,55 @@ E
 =========================================================================================================================================================================
 
 
+F	config.gameplay
+N	config/gameplay.json
+
+P	Defines behavior of various game elements.
+DI	../../schemas/config/gameplay.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.highscores
+N	config/highscores.json
+
+P	Contains default scoreboard settings. These are used when launching the game for the first time or when resetting the highscores manually.
+DI	../../schemas/config/highscores.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.hud_layer_order
+N	config/hud_layer_order.json
+
+P	This file lists all UI layers and the order in which they will be drawn, in order from the bottom to the top.
+P	All gameplay elements are rendered first and thus are displayed at the bottom, sometimes with a <i>MAIN</i> layer assigned.
+P	The first layer specified in this file should be <b>"MAIN"</b>!
+D	- (list) - A list of layers.
+D		- (string) - A single layer name.
+
+E
+
+
+=========================================================================================================================================================================
+
+
 F	config.level_set
 N	config/level_set.json
 
 P	Contains information about level order and checkpoints.
 P	A checkpoint is a place, where the player can start a new game.
-D	- (object) - The root entry.
-D		- levelOrder (list) - A list which contains level entries. Levels will be played in this order. More info below.
-D		- checkpoints (list) - A list of integers, containing index numbers corresponding to level IDs in the <i>levelOrder</i> field.
-D		- startCheckpoints (list) - A list of checkpoint IDs, which are unlocked upon profile creation.
+DI	../../schemas/config/level_set.json
 
-H2	Possible level order entry types
+H2	Possible level order entry types | level_set_entry
 P	<i>Debug information: this can be checked in Profile:getLevelName(), Profile:incrementLevel(), Profile:generateLevelID() and a number of other functions in Profile class.</i>
-
-H3	<i>level</i>
-P	A single level to be played.
-D	- (object) - A single level entry.
-D		- type (string) - <b><i>level</i></b>
-D		- level (number) - A level ID to be loaded and played.
-D		- name (string) - A level name.
-D		- unlockCheckpointsOnBeat* (list) - If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
-
-H3	<i>randomizer</i>
-P	A group of levels to be played in random order.
-D	- (object) - A single level entry.
-D		- type (string) - <b><i>randomizer</i></b>
-D		- pool (list) - A list of level IDs to be chosen from.
-D		- names (list) - A list of level names. It is not shuffled, and this list should have the same lenth as <i>count</i>.
-D		- count (number) - How many levels are to be picked from the pool.
-D		- mode (string) - How the levels will be randomized. There are three possible values:
-D		R <ol>
-D		R <li><b>repeat</b> - Every next level is simply drawn at random from the list.</li>
-D		R <li><b>noRepeat</b> - Same as above, but an entry is removed from the pool once it's been picked.</li>
-D		R <li><b>order</b> - Chooses <i>count</i> entries from the pool, without changing their order.</li>
-D		R <li>Both <b>noRepeat</b> and <b>order</b> modes need the pool size to be greater or equal to the <i>count</i>.</li>
-D		R </ol>
-D		- unlockCheckpointsOnBeat* (list) - If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
+DIE	../../schemas/config/level_set_entry.json
 
 E
 
@@ -285,20 +304,13 @@ E
 =========================================================================================================================================================================
 
 
-F	config.levels
-N	config/levels/level_*.json
+F	config.loadlist
+N	config/loadlist.json
 
-P	Level files contain information about sphere speeds, colors, etc.
-P	Useful vocabulary: We say the player is in <i>danger</i> when the spheres are close to the end point of the path and the pyramid starts blinking.
-DI	../../schemas/config/level.json
-
-H2	Possible spawn rule types | level_spawn_rules
-P	<i>Debug information: this can be checked in SphereChain:new().</i>
-DIE	../../schemas/config/level_spawn_rules.json
-
-H2	Possible speed interpolation types | level_speed_transition
-P	<i>Debug information: this can be checked in Path:getSpeed().</i>
-DIE	../../schemas/config/level_speed_transition.json
+P	This file contains all assets necessary to be loaded in order to display the Splash Screen properly.
+P	All assets not mentioned here (except Color Palettes, which must be specified here!) will be loaded after the Splash Screen shows up and a <i>loadMain</i> UI script callback is executed.
+P	Try keeping the amount of assets listed in this file at a minimum!
+DI	../../schemas/config/loadlist.json
 
 E
 
@@ -306,15 +318,127 @@ E
 =========================================================================================================================================================================
 
 
-F	config.shooter
-N	config/shooters/*.json
+F	config.music
+N	config/music.json
 
-P	Defines a Shooter.
-DI	../../schemas/config/shooter.json
+P	This file maps the soundtrack names to music files.
+D	- (object) - Key names are soundtrack names, and their corresponding values are paths to the music files.
 
-H2	Possible shooter movement types | shooter_movement
-P	<i>Debug information: this can be checked in Shooter:update(), Shooter:getInitialPos() and Shooter:getInitialAngle().</i>
-DIE	../../schemas/config/shooter_movement.json
+E
+
+
+=========================================================================================================================================================================
+
+
+F	ui2.animation
+N	ui2/animations/*.json
+
+P	Defines a UI2 animation. Animations are base blocks when it comes to applying different changes to UI which happen either instantly or over a certain time. They are used in UI2 Sequences.
+DIE	../../schemas/ui2/animation.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	ui2.node
+N	ui2/layouts/*.json | node
+
+P	Defines a UI2 layout (also called a Node). Every Node may or may not contain a Widget, which is its visual representation. Nodes can have multiple children, either included in the file, or from another file.
+DI	../../schemas/ui2/node.json
+
+H2	Possible widget types | widget
+P	<i>Debug information: this can be checked in UI2Node:new().</i>
+DIE	../../schemas/ui2/widget.json
+
+H2	Possible node child types | node_child
+P	<i>Debug information: this can be checked in UI2Node:new().</i>
+DIE	../../schemas/ui2/node_child.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	ui2.sequence
+N	ui2/sequences/*.json
+
+P	Defines a UI2 Sequence. Sequences are sequences of actions happening in sequence. Each of these actions can perform operations such as altering any Node's visibility or executing functions defined in the UI Script.
+DI	../../schemas/ui2/sequence.json
+
+H2	Possible sequence entry types | timeline_entry
+P	<i>Debug information: this can be checked in UI2Sequence:executeEntry().</i>
+DIE	../../schemas/ui2/timeline_entry.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	font
+N	fonts/*.json
+
+P	Defines a single Font.
+P	There are two distinct ways to create Fonts. You can use a TTF file, or you can create an image file with all the characters. The former is easier to set up, but the latter gives you more control over the design of the characters and takes up less space on disk.
+DIE	../../schemas/font.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	map
+N	maps/*/config.json
+
+P	This is the map configuration file. Defines the Map's name, paths and sprites.
+DI	../../schemas/map.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	particle
+N	particles/*.json
+
+P	Defines a single Particle Packet.
+P	A single Particle Packet is a packet of Particle Spawners (also called Emitters), each of which spawning a certain number of Particles themselves.
+PS	There are two types of Particle Packets:
+R	<ul>
+R	<li><b>One-time particle packets</b> spawn particles which eventually despawn. An example of such packet is a ball destroy particle or an extra life particle.</li>
+R	<li><b>Persistent particle packets</b> feature at least one Particle Spawner which stays active indefinitely or produces particles which stay indefinitely on the screen. The governing object must explicitly destroy them in order to get rid of them. They can also be moved around, unlike one-time packets. Examples of such packets are powerups and the shooter particle on the stage map.</li>
+PE	</ul>
+
+DI	../../schemas/particle.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	sound_event
+N	sound_events/*.json
+
+P	Describes a Sound Event.
+DI	../../schemas/sound_event.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	sprite
+N	sprites/*.json
+
+P	Describes a Sprite.
+DI	../../schemas/sprite.json
 
 E
 

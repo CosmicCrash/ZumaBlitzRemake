@@ -189,8 +189,7 @@ function SphereChain:isPushingFrontTrain()
 	local prevChain = self:getPreviousChain()
 	if prevChain and not prevChain.delQueue then
 		-- Check whether this sphere chain collides with a front one. If so, return true.
-		local dist = prevChain:getLastSphereGroup():getSphereOffset(1) - self.sphereGroups[1]:getLastSphereOffset()
-		return dist <= 34
+		return self.sphereGroups[1]:getFrontPos() > prevChain:getLastSphereGroup():getBackPos()
 	end
 end
 

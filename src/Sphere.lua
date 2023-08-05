@@ -36,7 +36,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self:deserialize(deserializationTable)
 	else
 		self.color = color
-		self.size = 1
+		self.appendSize = 1
 		self.boostCombo = false
 		self.shootOrigin = nil
         self.shootTime = nil
@@ -52,22 +52,24 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 
 	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
 
-    self.config = _Game.configManager.spheres[self.color]
+    self:loadConfig()
 
 	if shootOrigin then
 		self.shootOrigin = shootOrigin
 		self.shootTime = shootTime
-		self.size = 0
+		self.appendSize = 0
 	end
 
 	self.animationPrevOffset = self:getOffset()
-	self.animationFrame = math.random() * self:getFrameCount()
+	self.animationFrame = math.random() * self.frameCount
 
 	if not self.map.isDummy then
 		_Game.session.colorManager:increment(self.color)
 	end
 
 	self.danger = false
+
+	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
 
 	self.delQueue = false
 end
@@ -78,10 +80,10 @@ end
 ---@param dt number Time delta in seconds.
 function Sphere:update(dt)
 	-- for spheres that are being added
-	if self.size < 1 then
-		self.size = self.size + dt / self.shootTime
-		if self.size >= 1 then
-			self.size = 1
+	if self.appendSize < 1 then
+		self.appendSize = self.appendSize + dt / self.shootTime
+		if self.appendSize >= 1 then
+			self.appendSize = 1
 			self.shootOrigin = nil
 			self.shootTime = nil
 			local index = self.sphereGroup:getSphereID(self)
@@ -94,6 +96,7 @@ function Sphere:update(dt)
 				self.sphereGroup:matchAndDelete(index)
 			end
 		end
+		self:updateOffset()
 	end
 
 	-- Update the effects.
@@ -163,19 +166,24 @@ function Sphere:update(dt)
 	end
 
 	-- animation
-	if self.entity then
-		local dist = self:getOffset() - self.animationPrevOffset
-		self.animationPrevOffset = self:getOffset()
-		self.animationFrame = (self.animationFrame + dist * (self.config.spriteRollingSpeed or 1)) % self:getFrameCount()
-	end
+	local dist = self:getOffset() - self.animationPrevOffset
+	self.animationPrevOffset = self:getOffset()
+	self.animationFrame = (self.animationFrame + dist * (self.config.spriteRollingSpeed or (2 / math.pi))) % self.frameCount
 end
 
 
 
 ---Recalculates the offset this Sphere has from the offset of the Sphere Group it belongs to.
 function Sphere:updateOffset()
-	-- calculate the offset
-	self.offset = self.prevSphere and self.prevSphere.offset + 34 * self.size or 0
+	-- The offset calculation is performed using the scale on the current offset (before recalculation),
+	-- which can be far away from the new point (a new group starts with all spheres having offset = 0).
+	-- Since making a solver for all possible scenarios wouldn't be feasible,
+	-- we'll do with just reiterating a few times, to bring the inaccuracy down enough.
+
+	-- TODO: Pointless on certain paths. Might optimize this down at some point.
+	for i = 1, 4 do
+		self.offset = self.prevSphere and self.prevSphere.offset + self:getPrevSeparation() or 0
+	end
 end
 
 
@@ -577,6 +585,42 @@ end
 
 
 
+---Returns the current scale of this Sphere, taking only path into the account.
+---@return number
+function Sphere:getScale()
+	return self.path:getScale(self:getOffset())
+end
+
+
+
+---Returns the diameter of this Sphere, in pixels. This includes the normal Sphere size, its appending and path scaling.
+---@return number
+function Sphere:getSize()
+	return self.size * self.appendSize * self:getScale()
+end
+
+---Same as `sphere:getSize()`, but will not include the appending size.
+---@return number
+function Sphere:getDesiredSize()
+	return self.size * self:getScale()
+end
+
+
+
+---Returns the separation this Sphere should have compared to its previous sphere. If there's no previous sphere, this returns 0.
+function Sphere:getPrevSeparation()
+	if not self.prevSphere then
+		return 0
+	end
+	if not self.prevSphere.prevSphere then
+		-- This is a correction for spheres being appended at the back. They are instantly correctly aligned, so no need to counter it here.
+		return (self:getSize() + self.prevSphere.size) / 2
+	end
+	return (self:getSize() + self.prevSphere:getSize()) / 2
+end
+
+
+
 ---Returns `true` if this Sphere is near a path node flagged as hidden. This will make it impossible to shoot at.
 ---@return boolean
 function Sphere:getHidden()
@@ -612,17 +656,19 @@ function Sphere:draw(color, hidden, shadow)
 	end
 
 	local pos = self:getPos()
-	if self.size < 1 then
-		pos = self.path:getPos(self:getOffset() + 16 - self.size * 16) * self.size + self.shootOrigin * (1 - self.size)
+	if self.appendSize < 1 then
+		pos = self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize)) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
 	end
 
 	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
 
+	local scale = self:getScale() * self.size / 32
+
 	local frame = Vec2(1)
 	if self.config.spriteAnimationSpeed then
 		frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
-	elseif self.size == 1 then
-		frame = Vec2(math.ceil(self:getFrameCount() - self.animationFrame), 1)
+	elseif self.appendSize == 1 then
+		frame = Vec2(math.ceil(self.frameCount - self.animationFrame), 1)
 	end
 
 	local colorM = self:getColor()
@@ -630,6 +676,7 @@ function Sphere:draw(color, hidden, shadow)
 	-- Update the entity position.
 	self.entity:setPos(pos)
 	self.entity:setAngle(angle)
+	self.entity:setScale(scale)
 	self.entity:setFrame(frame)
 	self.entity:setColorM(colorM)
 
@@ -642,25 +689,49 @@ function Sphere:draw(color, hidden, shadow)
 		end
 	end
 
+	if _Debug.sphereDebugVisible2 and self.appendSize < 1 then
+		local p1 = _PosOnScreen(self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize)))
+		local p2 = _PosOnScreen(self.shootOrigin)
+		love.graphics.setColor(1, 0.5, 0)
+		love.graphics.setLineWidth(3)
+		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.setLineWidth(1)
+		love.graphics.circle("line", p1.x, p1.y, 15 * _GetResolutionScale())
+	end
+
 	-- debug: you can peek some sphere-related values here
 
 	--if not shadow and self:hasEffect("match") then
 	--	local p = _PosOnScreen(self:getPos())
 	--	love.graphics.print(self:getEffectGroupID("match"), p.x, p.y + 20)
 	--end
+
+	--if not shadow and _Debug.sphereDebugVisible2 and self.appendSize < 1 then
+	--	local p = _PosOnScreen(self:getPos())
+	--	local s = ""
+	--	s = s .. "offset: " .. tostring(self.offset) .. "\n"
+	--	s = s .. "getOffset(): " .. tostring(self:getOffset()) .. "\n"
+	--	s = s .. "appendSize: " .. tostring(self.appendSize) .. "\n"
+	--	s = s .. "\nResult: " .. tostring(self:getOffset() + 32 - self.appendSize * 32)
+	--	love.graphics.print(s, p.x, p.y + 20)
+	--end
 end
 
 
 
----Returns the current frame count of this Sphere.
----@return number
-function Sphere:getFrameCount()
-	return self.entity:getSprite().states[1].frameCount.x
+---Reloads the configuration variables of the current sphere color.
+function Sphere:loadConfig()
+	self.config = _Game.configManager.spheres[self.color]
+	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
+	-- TODO/DEPRECATED: Remove default value
+	self.frameCount = self.sprite.states[1].frameCount.x
+	self.size = self.config.size or 32
 end
 
 
 
----Returns a table of IDs, which at the very moment identify this very sphere. Used in saving.
+---Returns a table of IDs, which at the very moment identify this very sphere. Use if you want to reference this Sphere in the save file.
 ---@return table
 function Sphere:getIDs()
 	local s = self
@@ -697,8 +768,8 @@ function Sphere:serialize()
 		ghostTime = self.ghostTime
 	}
 
-	if self.size ~= 1 then
-		t.size = self.size
+	if self.appendSize ~= 1 then
+		t.appendSize = self.appendSize
 	end
 	if self.boostCombo then
 		t.boostCombo = self.boostCombo
@@ -732,7 +803,7 @@ end
 function Sphere:deserialize(t)
 	self.color = t.color
 	--self.animationFrame = t.animationFrame
-	self.size = t.size or 1
+	self.appendSize = t.appendSize or 1
 	self.boostCombo = t.boostCombo or false
 	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
 	self.shootTime = t.shootTime

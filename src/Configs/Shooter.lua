@@ -102,10 +102,14 @@ function ShooterConfig:new(data, path)
     self.speedShotParticle = data.speedShotParticle
     ---@type number
     self.shotCooldown = data.shotCooldown or 0
+    ---@type number
+    self.shotCooldownFade = data.shotCooldownFade or 0
     ---@type boolean
     self.multishot = data.multishot or false
     ---@type number
     self.shootSpeed = data.shootSpeed
+    ---@type Vector2
+    self.hitboxOffset = _ParseVec2(data.hitboxOffset) or Vec2()
     ---@type Vector2
     self.hitboxSize = _ParseVec2(data.hitboxSize) or Vec2()
 end
