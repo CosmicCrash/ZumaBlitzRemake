@@ -1,8 +1,8 @@
 {
-    "menu": "music/MenuMusic.ogg",
-    "game1": "music/GameMusic1.ogg",
-    "game2": "music/GameMusic2.ogg",
-    "game3": "music/GameMusic3.ogg",
-    "danger1": "music/15toGoMusic_1.ogg",
-    "danger2": "music/15toGoMusic_2.ogg"
+    "menu": "music/silence1.wav",
+    "game1": "music/silence1.wav",
+    "game2": "music/silence1.wav",
+    "game3": "music/silence1.wav",
+    "danger1": "music/silence1.wav",
+    "danger2": "music/silence1.wav"
 }
