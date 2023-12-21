@@ -23,7 +23,9 @@
             {
                 "chainBlastEnabled": 1,
                 "chainBlastMinimum": -1,
-                "chainBlastIncrement": -1
+                "chainBlastIncrement": -1,
+                "chainBonusJackpotEach": -1,
+                "chainBonusJackpotStart": -1
             }
         },
         {
@@ -37,6 +39,8 @@
                 "chainBlastEnabled": 1,
                 "chainBlastMinimum": -1,
                 "chainBlastIncrement": -1,
+                "chainBonusJackpotEach": -1,
+                "chainBonusJackpotStart": -1,
                 "chainBlastExplosionRadius": 21
             }
         }

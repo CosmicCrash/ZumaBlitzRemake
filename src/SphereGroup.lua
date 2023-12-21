@@ -275,35 +275,39 @@ function SphereGroup:getAddSpherePos(position)
 end
 
 
+-- position will check for not nil since 0 is a valid value for position
 
 function SphereGroup:destroySphere(position, crushed)
 	-- no need to divide if it's the first or last sphere in this group
-	if position == 1 then
-		-- Shift the group offset to the next sphere. It might not exist.
-		self.offset = self.offset + self.spheres[position].size / 2
-		if self.spheres[position + 1] then
-			self.offset = self.offset + self.spheres[position + 1].size / 2
-		end
-		self.spheres[position]:delete(crushed)
-		table.remove(self.spheres, position)
-		self:updateSphereOffsets()
-		self:checkUnfinishedDestructionAtSpawn()
-	elseif position == #self.spheres then
-		self.spheres[position]:delete(crushed)
-		table.remove(self.spheres, position)
-	else
-		self:divide(position)
-		self.spheres[position]:delete(crushed)
-		table.remove(self.spheres, position)
+	if position ~= nil then
+    if position == 1 then
+      -- Shift the group offset to the next sphere. It might not exist.
+      self.offset = self.offset + self.spheres[position].size / 2
+      if self.spheres[position + 1] then
+        self.offset = self.offset + self.spheres[position + 1].size / 2
+      end
+      self.spheres[position]:delete(crushed)
+      table.remove(self.spheres, position)
+      self:updateSphereOffsets()
+      self:checkUnfinishedDestructionAtSpawn()
+    elseif position == #self.spheres then
+      self.spheres[position]:delete(crushed)
+      table.remove(self.spheres, position)
+    else
+      self:divide(position)
+      self.spheres[position]:delete(crushed)
+      table.remove(self.spheres, position)
+    end
 	end
 
-	self:checkDeletion()
+		self:checkDeletion()
+	end
 end
 
-
-
 function SphereGroup:destroySphereVisually(position, ghostTime, crushed)
-	self.spheres[position]:deleteVisually(ghostTime, crushed)
+	if position ~= nil then
+		self.spheres[position]:deleteVisually(ghostTime, crushed)
+	end
 end
 
 
@@ -743,6 +747,17 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		_Game:playSound(comboSoundParams.name, comboSoundParams.pitch, pos)
 	end
 
+	-- chain blast
+	if self.map.level:getParameter("chainBlastEnabled") > 0 then
+		local chain_start = self.map.level:getParameter("chainBlastMinimum") 
+		local chain_each = self.map.level:getParameter("chainBlastIncrement") 
+		if self.map.level.combo >= chain_start and (self.map.level.combo - chain_start) % chain_each == 0 then
+			_Game.session:destroyRadius(pos, self.map.level:getParameter("chainBlastExplosionRadius"), "chainblast")
+			_Game:spawnParticle("particles/explosion.json", pos)
+			_Game:playSound("sound_events/sphere_hit_fire.json")
+		end
+	end
+
 	-- speed bonus
 	if self.map.level.speedTimer <= 0 then
 		self.map.level.speedBonusIncrement = 0
@@ -871,7 +886,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	self.map.level.maxChain = math.max(self.sphereChain.combo, self.map.level.maxChain)
 
     -- Update Hot Frog meter
-	self.map.level:incrementBlitzMeter(0.055)
+	self.map.level:incrementBlitzMeter()
 end
 
 

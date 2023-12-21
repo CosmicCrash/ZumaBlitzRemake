@@ -24,6 +24,13 @@ function Sprite:new(path)
 	self.size = self.img.size
 	self.frameSize = data.frame_size
 	self.states = {}
+
+	-- Default position to 0,0 and 1 frame if states is not defined
+	if not data.states then
+		data.states = {}
+		data.states[1] = {pos = {x = 0, y = 0}, frames = {x = 1, y = 1}} 
+	end
+
 	for i, state in ipairs(data.states) do
 		local s = {}
 		s.frameCount = state.frames

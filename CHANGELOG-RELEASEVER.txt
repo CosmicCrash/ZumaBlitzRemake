@@ -11,6 +11,34 @@ All dates are in YYYY-MM-DD format.
 
 ==========
 
+Alpha v0.1.6 - 2023-08-30
+
+Additions:
+ - Added replay support - replays are autosaved locally after each game.
+ - Added support for bombs and chain blast 
+ 
+Bugfixes:
+ - Fix rare occurrence of score going to NaN
+ - Fix crash related to missing food sprite, will instead skip the intro animation instead
+ - Fix disabling hot frog in map parameters didn't do anything
+ - Fix collision detection for very slow moving balls
+ - Fix pitch for soundEvent being associated based on its volume 
+ - Fix crash with hot frog fireballs hitting balls that destroys more balls in some situations
+
+Changes:
+ - Powerups and fruit spawns are now based on the random game seed 
+ - Hot frog will not retrigger if any action increments the Blitz meter while in hot frog mode
+ - Hot frog will not be entered if the power combination will not give you any fireballs (previously it gave you one)
+ - Chain blast will now add bonus points at the same chain the blast occurs
+ - Spheres can no longer be fired if any spheres reached the end of the path
+ - Slow moving balls will now merge at normal speed
+ - Shot speed cap has been removed
+ 
+Misc:
+ - Add 'replay <filename>' in debug console to load a replay and verify score. 
+
+==========
+
 Alpha v0.1.5 - 2023-07-29
 
 Changes:

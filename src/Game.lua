@@ -302,8 +302,8 @@ function Game:keypressed(key)
 		local shooter = self.session.level.shooter
 		if key == "left" then shooter.moveKeys.left = true end
 		if key == "right" then shooter.moveKeys.right = true end
-		if key == "up" then shooter:shoot() end
-		if key == "space" then shooter:swapColors() end
+		if key == "up" then self.session.level.pending_action = 1 end
+		if key == "space" then self.session.level.pending_action = 2 end
 	end
 end
 

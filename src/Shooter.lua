@@ -796,12 +796,6 @@ function Shooter:getShootingSpeed()
     local finalSpeed =  self.config.shootSpeed + foodSpeedShot_add + speedBonusShotSpeed
     finalSpeed = finalSpeed * (foodSpeedShot_mult)
 
-    --print("final speed", "-> " ..  finalSpeed)
-
-
-
-    -- Would it also be ideal to set a max speed bonus cap?
-    finalSpeed = math.min(finalSpeed, 2000)
 
     return finalSpeed
 end

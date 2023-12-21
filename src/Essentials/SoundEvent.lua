@@ -16,7 +16,7 @@ function SoundEvent:new(path)
     local data = _Utils.loadJson(path)
 
     self.volume = data.volume or 1
-    self.pitch = data.volume or 1
+    self.pitch = data.pitch or 1
     self.loop = data.loop or false
     self.flat = data.flat or false
     self.instanceCount = data.instances or 8

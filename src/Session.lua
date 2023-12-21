@@ -127,7 +127,7 @@ function Session:destroyFunction(f, scorePos, scoreFont, noRewards, source)
 				for l = #sphereGroup.spheres, 1, -1 do
 					local sphere = sphereGroup.spheres[l]
 					local spherePos = sphereGroup:getSpherePos(l)
-					if f(sphere, spherePos) and sphere.color ~= 0 then
+					if sphere and f(sphere, spherePos) and not sphere:isGhost() and sphere.color ~= 0 then
 						sphereGroup:destroySphere(l)
 						balls_destroyed = balls_destroyed + 1
 						if not noRewards then
@@ -176,7 +176,7 @@ function Session:destroyFunction(f, scorePos, scoreFont, noRewards, source)
 		base_multiplier = self.level:getParameter("spiritShotPointsMult")
 	end
 
-	score = score * (math.floor(balls_destroyed^effective_ball_exponent) / balls_destroyed)
+	score = score * (math.floor(balls_destroyed^effective_ball_exponent) / math.max(balls_destroyed,1))
 	score = score + base_score
 	score = score * base_multiplier
 
@@ -276,10 +276,13 @@ end
 ---Destroys all spheres that are closer than `radius` pixels to the `pos` position.
 ---@param pos Vector2 A position relative to which the spheres will be destroyed.
 ---@param radius number The range in pixels.
-function Session:destroyRadius(pos, radius)
+function Session:destroyRadius(pos, radius, effect)
 	self:destroyFunction(
 		function(sphere, spherePos) return (pos - spherePos):len() <= radius end,
-		pos
+		pos,
+		nil,
+		nil,
+		effect
 	)
 end
 

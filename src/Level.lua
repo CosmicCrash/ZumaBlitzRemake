@@ -259,7 +259,7 @@ function Level:updateLogic(dt)
 
 	-- If there is a pending action (signaled from game.lua) execute it and set to zero
 	
-	if (self.pending_action and not self.replayCore.replay_loaded) then
+	if (self.pending_action and not self.replayCore.replay_loaded and self:getMaxDangerProgress() < 1) then
 		if self.pending_action == 1 then
 			self.shooter:shoot()
 		elseif self.pending_action == 2 then
@@ -276,7 +276,7 @@ function Level:updateLogic(dt)
 		self.shooter:setAngle(replay_angle)
 	end
 	if (replay_button) then
-		if replay_button == 1 then
+		if replay_button == 1 and self:getMaxDangerProgress() < 1 then
 			self.shooter:shoot()
 		elseif replay_button == 2 then
 			self.shooter:swapColors()
@@ -970,24 +970,25 @@ end
 
 ---Increments the level's Blitz Meter by a given amount and launches the Hot Frog if reaches 1.
 ---@param amount any
----@param chain? boolean used for spirit turtle
-function Level:incrementBlitzMeter(amount, chain)
-	if not chain and self.blitzMeter == 1 then
+function Level:incrementBlitzMeter(amount)
+
+	-- prevent retriggering hot frog if already in it.
+	if self.blitzMeter >= 1 then
 		return
     end
 
-	-- Use the values of goal and match value instead
-	amount = self:getParameter("hotFrogMatchValue") / self:getParameter("hotFrogGoal")
+	-- Use the values of goal and match value instead if not defined
+	if not amount then amount = self:getParameter("hotFrogMatchValue") / self:getParameter("hotFrogGoal") end
 
 	-- If hot frog is not enabled, then matching will go no further than 99% of the meter
-	if self:getParameter("hotFrogEnabled") == 0 then
+	if self:getParameter("hotFrogEnabled") == 0 or self:getParameter("hotFrogShots") <= 0 then
 		self.blitzMeter = math.min(self.blitzMeter + amount, 0.99)
+		return
 	end
 
 	self.blitzMeter = math.min(self.blitzMeter + amount, 1)
-    if (not chain and self.blitzMeter == 1) or (chain and self.blitzMeter >= 1) then
+    if self.blitzMeter >= 1 then
         -- hot frog
-		-- minimum hot frog shots is 1 otherwise graphics won't work properly
 		local additiveAmount = math.max(self:getParameter("hotFrogShots"), 1)
         self.shooter:getMultiSphere(-2, (additiveAmount))
 		_Game:playSound("sound_events/hot_frog_activate.json")
@@ -1749,8 +1750,8 @@ function Level:saveStats()
 		spheresShot = self.spheresShot,
 		ProductName = "ZumaBlitzRemake",
 		PlatformName = "Social",
-		ClientVersion = "ZBR 0.1.1 alpha",
 		MetricsType = "Gameplay",
+		ClientVersion = "ZBR 0.1.6 alpha",
 		GapsNum = self.gapsNum,
 		BallsClearedNum = self.destroyedSpheres,
 		MultiplierMax = self.multiplier,

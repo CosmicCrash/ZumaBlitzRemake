@@ -67,7 +67,7 @@ function Target:onShot()
 
     local incrementAmount = _Game.session.level:getParameter("hotFrogFruitInc") / _Game.session.level:getParameter("hotFrogGoal")
     incrementAmount = math.min(math.max(incrementAmount, 0), 1)
-    _Game.session.level:incrementBlitzMeter(incrementAmount, true)
+    _Game.session.level:incrementBlitzMeter(incrementAmount)
 
     _Game.session.level.targets = _Game.session.level.targets + 1
     _Game.session.level.fruitCollected = _Game.session.level.fruitCollected + 1
