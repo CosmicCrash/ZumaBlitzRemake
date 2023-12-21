@@ -41,7 +41,7 @@ function Game:new(name)
 
 
 	-- revert to original font size
-	love.graphics.setFont(_LoadFont("assets/dejavusans.ttf"))
+	love.graphics.setFont(_Utils.loadFont("assets/dejavusans.ttf"))
 end
 
 
@@ -74,7 +74,6 @@ function Game:init()
 
 	-- Step 7. Create a runtime manager
 	self.runtimeManager = RuntimeManager()
-	local p = self:getCurrentProfile()
 
 	-- Step 8. Set up the UI Manager or the experimental UI2 Manager
 	self.uiManager = self.configManager.config.useUI2 and UI2Manager() or UIManager()

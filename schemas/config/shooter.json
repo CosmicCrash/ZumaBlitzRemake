@@ -132,6 +132,16 @@
                 "radiusSprite": {
                     "$ref": "../_structures/Sprite.json",
                     "description": "The aiming reticle's sprite for spheres with ranged effects, like Fireballs or Color Clouds."
+                },
+                "colorFadeTime": {
+                    "type": "number",
+                    "description": "The time which the reticle should take to fade into the new color, in seconds.",
+                    "exclusiveMinimum": 0.0
+                },
+                "nextColorFadeTime": {
+                    "type": "number",
+                    "description": "The time which the reticle's next color indicator should take to fade into the new color, in seconds.",
+                    "exclusiveMinimum": 0.0
                 }
             },
             "additionalProperties": false
@@ -218,6 +228,10 @@
         "multishot": {
             "type": "boolean",
             "description": "If set, the player will be able to shoot another sphere before the previous one has hit the sphere train."
+        },
+        "destroySphereOnFail": {
+            "type": "boolean",
+            "description": "If set, when the level is lost, the sphere held by the shooter will show its destruction particles. Otherwise, the ball will just disappear."
         },
         "shootSpeed": {
             "type": "number",

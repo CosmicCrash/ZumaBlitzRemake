@@ -16,14 +16,14 @@ local FoodItem = require("src.Configs.FoodItem")
 
 ---Constructs a new ConfigManager and initializes all lists.
 function ConfigManager:new()
-	self.config = _LoadJson(_ParsePath("config.json"))
+	self.config = _Utils.loadJson(_ParsePath("config.json"))
 
 	-- TODO: make a game config class
 	self.nativeResolution = _ParseVec2(self.config.nativeResolution)
 
 	-- Load all game resources.
 	-- The load list is loaded to ensure that no resource will be loaded twice.
-	self.loadList = _LoadJson(_ParsePath("config/loadlist.json"))
+	self.loadList = _Utils.loadJson(_ParsePath("config/loadlist.json"))
 	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
 	local resourcePaths = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
 	self.resourceList = {}
@@ -32,7 +32,7 @@ function ConfigManager:new()
 		_Log:printt("ConfigManager", string.format("Loading %s...", type))
 		self.resourceList[type] = {}
 		-- ...get a list of resources to be loaded.
-		for j, path in ipairs(_GetDirListing(_ParsePath(resourcePaths[i]), "file", nil, true)) do
+		for j, path in ipairs(_Utils.getDirListing(_ParsePath(resourcePaths[i]), "file", nil, true)) do
 			local name = resourcePaths[i] .. "/" .. path
 			local ok = true
 			if self.loadList[type] then
@@ -54,11 +54,11 @@ function ConfigManager:new()
 	end
 
 	-- Load configuration files.
-	self.gameplay = _LoadJson(_ParsePath("config/gameplay.json"))
-	self.highscores = _LoadJson(_ParsePath("config/highscores.json"))
-	self.hudLayerOrder = _LoadJson(_ParsePath("config/hud_layer_order.json"))
-	self.levelSet = _LoadJson(_ParsePath("config/level_set.json"))
-	self.music = _LoadJson(_ParsePath("config/music.json"))
+	self.gameplay = _Utils.loadJson(_ParsePath("config/gameplay.json"))
+	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
+	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
+	self.levelSet = _Utils.loadJson(_ParsePath("config/level_set.json"))
+	self.music = _Utils.loadJson(_ParsePath("config/music.json"))
 
 	self.collectibles = self:loadFolder("config/collectibles", "collectible")
 	self.spheres = self:loadFolder("config/spheres", "sphere", true)
@@ -69,19 +69,19 @@ function ConfigManager:new()
 	-- Load level and map data.
 	self.levels = {}
 	self.maps = {}
-	local levelList = _GetDirListing(_ParsePath("config/levels"), "file", "json")
+	local levelList = _Utils.getDirListing(_ParsePath("config/levels"), "file", "json")
 	for i, path in ipairs(levelList) do
 		local id = tonumber(string.sub(path, 7, -6))
 		_Log:printt("ConfigManager", "Loading level " .. tostring(id) .. ", " .. tostring(path))
 		if not id then
 			_Log:printt("ConfigManager", "WARNING: Skipped - illegal name!")
 		else
-			local level = _LoadJson(_ParsePath("config/levels/" .. path))
+			local level = _Utils.loadJson(_ParsePath("config/levels/" .. path))
 			self.levels[id] = level
 			-- Load map data only if it hasn't been loaded yet.
 			if not self.maps[level.map] then
 				_Log:printt("ConfigManager", "Loading map " .. level.map)
-				self.maps[level.map] = _LoadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
+				self.maps[level.map] = _Utils.loadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
 			end
 		end
 	end
@@ -92,7 +92,7 @@ end
 ---Loads config files which are implemented the new way so that they require to be loaded after the resources.
 function ConfigManager:loadStuffAfterResources()
     self.shooters = self:loadFolder("config/shooters", "shooter", false, ShooterConfig)
-	self.targetSprites = _LoadJson(_ParsePath("config/target_sprites.json"))
+	self.targetSprites = _Utils.loadJson(_ParsePath("config/target_sprites.json"))
 
 	---@type Frogatar[]
     self.frogatars = self:loadFolder("config/frogatars", "Frogatar", false, Frogatar)
@@ -135,14 +135,14 @@ end
 function ConfigManager:loadFolder(folderPath, name, isNumbers, constructor)
 	local t = {}
 
-	local fileList = _GetDirListing(_ParsePath(folderPath), "file", "json")
+	local fileList = _Utils.getDirListing(_ParsePath(folderPath), "file", "json")
 	for i, path in ipairs(fileList) do
 		local id = string.sub(path, 1, -6)
 		if isNumbers then
 			id = tonumber(string.sub(path, 2 + string.len(name), -6))
 		end
 		_Log:printt("ConfigManager", string.format("Loading %s %s, %s", name, id, path))
-		local item = _LoadJson(_ParsePath(folderPath .. "/" .. path))
+		local item = _Utils.loadJson(_ParsePath(folderPath .. "/" .. path))
 		if constructor then
 			item = constructor(item)
 		end

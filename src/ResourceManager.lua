@@ -38,9 +38,23 @@ function ResourceManager:new()
 		sound = {t = self.sounds, c = Sound, e = "sound"},
 		soundEvent = {t = self.soundEvents, c = SoundEvent, e = "sound event"},
 		music = {t = self.music, c = Music, e = "music"},
-		particle = {t = self.particles, c = _LoadJson, e = "particle"},
+		particle = {t = self.particles, c = _Utils.loadJson, e = "particle"},
 		font = {t = self.fonts, c = Font, e = "font"},
 		colorPalette = {t = self.colorPalettes, c = ColorPalette, e = "color palette"},
+	}
+
+	self.STEP_LOAD_ORDER = {
+		"images",
+		"sprites",
+		"sounds",
+		"sound_events",
+		"music",
+		"particles",
+		"fonts",
+		"colorPalettes",
+		"ui2NodeConfigs",
+		"ui2AnimationConfigs",
+		"ui2SequenceConfigs"
 	}
 
 
@@ -56,8 +70,8 @@ end
 ---Updates the Resource Manager. This includes updating sound and music, and also loads a next group of files during the step load process.
 ---@param dt number Delta time in seconds.
 function ResourceManager:update(dt)
-	for i, sound in pairs(self.sounds) do
-		sound:update(dt)
+	for i, soundEvent in pairs(self.soundEvents) do
+		soundEvent:update(dt)
 	end
 	for i, music in pairs(self.music) do
 		music:update(dt)
@@ -288,14 +302,14 @@ end
 ---Loads a next resource in the queued resource loading process.
 function ResourceManager:stepLoadNext()
 	local objectType = nil
-	local order = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "colorPalettes"}
 	-- loading a first object type from order
-	for i, v in ipairs(order) do
+	for i, v in ipairs(self.STEP_LOAD_ORDER) do
 		if self.stepLoadQueue[v] then
 			objectType = v
 			break
 		end
 	end
+
 	-- get data
 	local data = self.stepLoadQueue[objectType][1]
 	--print("[RB] Processing item " .. tostring(self.stepLoadProcessedObjs + 1) .. " from " .. tostring(self.stepLoadTotalObjs) .. "...")
@@ -333,8 +347,8 @@ function ResourceManager:unload()
 	for musicN, music in pairs(self.music) do
 		music:stop()
 	end
-	for soundN, sound in pairs(self.sounds) do
-		sound:stop()
+	for soundEventN, soundEvent in pairs(self.soundEvents) do
+		soundEvent:stop()
 	end
 end
 

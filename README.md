@@ -16,7 +16,7 @@ to relive their 1-minute ball shooting memories.
 
 ## Running from source
 
-Make sure [LÖVE2D 11.3](https://github.com/love2d/love/releases/tag/11.3) or later is installed on your machine.
+Make sure [LÖVE2D 11.5](https://github.com/love2d/love/releases/tag/11.5) or later is installed on your machine.
 
 ### Windows
 Run `start.bat`.

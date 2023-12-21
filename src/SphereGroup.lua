@@ -489,7 +489,7 @@ function SphereGroup:divide(position)
 	-- first, create a new group and give its properties there
 	local newGroup = SphereGroup(self.sphereChain)
 	newGroup.offset = self:getSphereOffset(position + 1)
-	newGroup.speed = ((self.config.luxorized and self.sphereChain.combo > 1) or self.config.knockbackStopAfterTime) and 0 or self.speed
+	newGroup.speed = self.config.knockbackStopAfterTime and 0 or self.speed
 	for i = position + 1, #self.spheres do
 		local sphere = self.spheres[i]
 		sphere.sphereGroup = newGroup
@@ -708,6 +708,12 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		self:destroySphere(self:getSphereID(prevSphere))
 	end
 
+	-- Now that we've finished destroying the spheres, we can adjust the group speed.
+	-- TODO: This is dirty. See issue #121 for a potential resolution.
+	if self.config.luxorized and self.nextGroup and self.nextGroup.speed < 0 and #self.spheres > 0 and (self:getLastSphere().color == 0 or not self.nextGroup:isMagnetizing()) then
+		self.nextGroup.speed = 0
+	end
+
 	-- Play a sound.
     if effectConfig.destroySound == "hardcoded" then
 		local destroySoundParams = MOD_GAME.matchSound(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
@@ -790,7 +796,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 
 		-- kroakatoa sep 2012 gap algo
 		--gapbonus = math.max((((300 - largestGap) / 300))^2 * 10000, 50)
-		--gapbonus = _MathRoundDown(gapbonus, 10) * #gaps
+		--gapbonus = _Utils.roundDown(gapbonus, 10) * #gaps
 
 		-- regular gap algo
 		-- apply a certain multiplier based on number of gaps:
@@ -805,7 +811,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 
 		local gapMax = self.map.level:getParameter("gapGapMax")
 		gapbonus = math.max(((gapMax - largestGap) / gapMax) * self.map.level:getParameter("gapPointsBase"), self.map.level:getParameter("gapPointMin"))
-		gapbonus = _MathRoundDown(gapbonus, self.map.level:getParameter("gapPointsRounding")) * gapMultiplier
+		gapbonus = _Utils.roundDown(gapbonus, self.map.level:getParameter("gapPointsRounding")) * gapMultiplier
 
 		score = score + gapbonus
     end
@@ -1187,7 +1193,7 @@ end
 
 
 function SphereGroup:getSphereOffset(sphereID)
-	return self.offset + ((_MathAreKeysInTable(self.spheres, sphereID) and self.spheres[sphereID].offset) or 0)
+	return self.offset + ((_Utils.areKeysInTable(self.spheres, sphereID) and self.spheres[sphereID].offset) or 0)
 end
 
 

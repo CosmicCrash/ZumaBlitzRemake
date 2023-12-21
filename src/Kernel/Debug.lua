@@ -192,6 +192,7 @@ function Debug:getDebugLevel()
 	local s = ""
 
 	s = s .. "LevelScore = " .. tostring(_Game.session.level.score) .. "\n"
+	s = s .. string.format("Accuracy = %s / %s (%.0d%%)", _Game.session.level.successfulShots, _Game.session.level.spheresShot, _Game.session.level:getShotAccuracy() * 100) .. "\n"
 	s = s .. "Objectives:\n"
 	for i, objective in ipairs(_Game.session.level.objectives) do
 		s = s .. string.format("  %s: %s %s/%s\n", i, objective.type, objective.progress, objective.target)
@@ -277,7 +278,7 @@ function Debug:drawVisibleText(text, pos, height, width, alpha)
 	if width then
 		love.graphics.rectangle("fill", pos.x - 3, pos.y, width - 3, height)
 	else
-		love.graphics.rectangle("fill", pos.x - 3, pos.y, love.graphics.getFont():getWidth(_StrUnformat(text)) + 6, height)
+		love.graphics.rectangle("fill", pos.x - 3, pos.y, love.graphics.getFont():getWidth(_Utils.strUnformat(text)) + 6, height)
 	end
 	love.graphics.setColor(1, 1, 1, alpha)
 	love.graphics.print(text, pos.x, pos.y)
@@ -288,7 +289,7 @@ function Debug:drawDebugInfo()
 	--local p = posOnScreen(Vec2())
 	local p = Vec2()
 
-	local spl = _StrSplit(self:getDebugInfo(), "\n")
+	local spl = _Utils.strSplit(self:getDebugInfo(), "\n")
 
 	for i, l in ipairs(spl) do
 		self:drawVisibleText(l, p + Vec2(0, 15 * (i - 1)), 15)
@@ -416,7 +417,7 @@ end
 
 
 function Debug:runCommand(command)
-	local words = _StrSplit(command, " ")
+	local words = _Utils.strSplit(command, " ")
 
     if words[1] == "help" then
         local muchoTexto = {
@@ -446,13 +447,13 @@ function Debug:runCommand(command)
 		if words[2] then filename = words[2] end
 
 		-- insert replay here
-		if _LoadFile(filename) then
+		if _Utils.loadFile(filename) then
 			self.console:print("Running replay " .. filename)
 			_Game:getCurrentProfile():newGame(1)
 			_Game.session:startLevel()
 
 			-- load from replay compressed
-			local compressed_contents = _LoadFile(filename)
+			local compressed_contents = _Utils.loadFile(filename)
 			_Game.session.level.replayCore:load(compressed_contents)
 			_TimeScale = 1
 
@@ -601,7 +602,7 @@ end
 
 
 function Debug:getWitty()
-	local witties = _StrSplit(_LoadFile("assets/eggs_crash.txt"), "\n")
+	local witties = _Utils.strSplit(_Utils.loadFile("assets/eggs_crash.txt"), "\n")
 	return witties[math.random(1, #witties)]
 end
 

@@ -31,10 +31,10 @@ function RuntimeManager:load()
 
 	local data = nil
 
-	if pcall(function() _LoadJson("profile.json") end) then
-		data = _LoadJson("profile.json")
-	elseif pcall(function() _LoadJson(_ParsePath("runtime.json")) end) then
-		data = _LoadJson(_ParsePath("runtime.json"))
+	if pcall(function() _Utils.loadJson("profile.json") end) then
+		data = _Utils.loadJson("profile.json")
+	elseif pcall(function() _Utils.loadJson(_ParsePath("runtime.json")) end) then
+		data = _Utils.loadJson(_ParsePath("runtime.json"))
 	end
 
 	if data then
@@ -66,7 +66,7 @@ function RuntimeManager:save()
 	data.highscores = self.highscores.data
 	data.options = self.options.data
 
-	_SaveJson("profile.json", data)
+	_Utils.saveJson("profile.json", data)
 end
 
 

@@ -26,7 +26,7 @@ function UIWidget:new(name, data, parent)
 	-- positions, alpha etc. are:
 	-- local in variables
 	-- global in methods
-	if type(data) == "string" then data = _LoadJson(_ParsePath(data)) end
+	if type(data) == "string" then data = _Utils.loadJson(_ParsePath(data)) end
 
 	self.pos = _ParseVec2(data.pos or {x = 0, y = 0})
 	self.mousePressLoc = {x = 0, y = 0}

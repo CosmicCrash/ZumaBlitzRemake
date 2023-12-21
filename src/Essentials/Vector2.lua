@@ -56,7 +56,7 @@ function Vec2.ceil(o) return Vec2(math.ceil(o.x), math.ceil(o.y)) end
 ---Returns this Vector with its components rounded down or up depending on the X and Y values.
 ---@param o Vector2
 ---@return Vector2
-function Vec2.round(o) return Vec2(_MathRound(o.x), _MathRound(o.y)) end
+function Vec2.round(o) return Vec2(_Utils.round(o.x), _Utils.round(o.y)) end
 
 ---Returns this Vector with its components swapped.
 ---@param o Vector2

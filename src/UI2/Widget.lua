@@ -15,7 +15,7 @@ local Vec2 = require("src.Essentials.Vector2")
 ---@param name string The name of an UI2Widget JSON file, located in `ui2/layouts`.
 function UI2Widget:new(name)
     local path = "ui2/layouts/" .. name .. ".json"
-    local data = _LoadJson(_ParsePath(path))
+    local data = _Utils.loadJson(_ParsePath(path))
     assert(data, string.format("Failed to locate a UI2Widget file: %s", path))
 
     -- Data

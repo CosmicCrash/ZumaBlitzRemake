@@ -79,6 +79,8 @@ function Path:new(map, pathData, pathBehavior)
 
 	self.sphereChains = {}
 	self.clearOffset = 0
+	self.pathIntroductionOffset = nil
+	self.pathIntroductionTrailDistance = 0
 	self.bonusScarab = nil
 	self.scorpions = {}
 	self.sphereEffectGroups = {}
@@ -156,10 +158,33 @@ function Path:update(dt)
 	end
 
 	-- Sphere chain spawning
-	if self:shouldSpawn() then self:spawnChain() end
+	if self:shouldSpawn() then
+		self:spawnChain()
+	end
 
 	-- Bonus Scarab
-	if self.bonusScarab then self.bonusScarab:update(dt) end
+	if self.bonusScarab then
+		self.bonusScarab:update(dt)
+	end
+
+	if self.pathIntroductionOffset then
+		local pathIntroductionConfig = _Game.configManager.gameplay.pathIntroduction
+		self.pathIntroductionOffset = self.pathIntroductionOffset + pathIntroductionConfig.speed * dt
+		-- Spawn particles.
+		while self.pathIntroductionTrailDistance < self.pathIntroductionOffset do
+			_Game:spawnParticle(pathIntroductionConfig.particle, self:getPos(self.pathIntroductionTrailDistance))
+			self.pathIntroductionTrailDistance = self.pathIntroductionTrailDistance + pathIntroductionConfig.separation
+		end
+		-- Finish introducing the path once it reaches the end.
+		if self.pathIntroductionOffset > self.length then
+			self.pathIntroductionOffset = nil
+			self.pathIntroductionTrailDistance = 0
+		end
+	end
+
+	if self.bonusScarab then
+		self.bonusScarab:update(dt)
+	end
 
 	-- Scorpions
 	for i, scorpion in ipairs(self.scorpions) do
@@ -267,6 +292,19 @@ end
 ---Spawns a Scorpion on this Path.
 function Path:spawnScorpion()
 	table.insert(self.scorpions, Scorpion(self))
+end
+
+
+
+---Starts the path introduction process for this Path.
+function Path:startIntroduction()
+	self.pathIntroductionOffset = 0
+end
+
+---Returns `true` if this path has an ongoing introduction process, `false` otherwise.
+---@return boolean
+function Path:isBeingIntroduced()
+	return self.pathIntroductionOffset ~= nil
 end
 
 

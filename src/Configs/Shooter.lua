@@ -80,7 +80,11 @@ function ShooterConfig:new(data, path)
         ---@type Vector2?
         nextBallOffset = data.reticle and _ParseVec2(data.reticle.nextBallOffset),
         ---@type Sprite?
-        radiusSprite = data.reticle and data.reticle.radiusSprite and _Game.resourceManager:getSprite(data.reticle.radiusSprite)
+        radiusSprite = data.reticle and data.reticle.radiusSprite and _Game.resourceManager:getSprite(data.reticle.radiusSprite),
+        ---@type number?
+        colorFadeTime = data.reticle and data.reticle.colorFadeTime,
+        ---@type number?
+        nextColorFadeTime = data.reticle and data.reticle.nextColorFadeTime
     }
 
     self.speedShotBeam = {
@@ -106,6 +110,8 @@ function ShooterConfig:new(data, path)
     self.shotCooldownFade = data.shotCooldownFade or 0
     ---@type boolean
     self.multishot = data.multishot or true
+    ---@type boolean
+    self.destroySphereOnFail = data.destroySphereOnFail or false
     ---@type number
     self.shootSpeed = data.shootSpeed or 800
     ---@type Vector2

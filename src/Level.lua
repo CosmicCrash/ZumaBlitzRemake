@@ -75,6 +75,10 @@ function Level:new(data)
 
 	self.dangerSoundName = data.dangerSound or "sound_events/warning.json"
 	self.dangerLoopSoundName = data.dangerLoopSound or "sound_events/warning_loop.json"
+	-- TODO: Resolve this ambiguity (use warmupLoopName and failLoopName, remove CC-exclusive rollingSound)
+	-- Do this when the whole level pipeline is rebuilt in the base OpenSMCE
+	self.warmupLoopName = data.warmupLoopSound or "sound_events/sphere_roll.json"
+	self.failLoopName = data.failLoopSound or "sound_events/sphere_roll.json"
 	self.rollingSound = nil
 
 	-- Initalize random seed for ball generation
@@ -108,7 +112,7 @@ function Level:changePhase()
 	if self.phase == 3 then
 		self.started = true
 		self.phase = 4
-		self.rollingSound = _Game:playSound("sound_events/sphere_roll.json")
+		self.rollingSound = _Game:playSound(self.warmupLoopName)
 	-- skip the food eating animation
 	elseif self.phase == 2 then
 		if self.foodSoundResource then
@@ -236,7 +240,7 @@ function Level:updateLogic(dt)
 		if self.drawCurve > self.curveCount then
 			self.phase = 4
 			self.started = true
-			self.rollingSound = _Game:playSound("sound_events/sphere_roll.json")
+			self.rollingSound = _Game:playSound(self.warmupLoopName)
 		end
 
 	end
@@ -560,6 +564,8 @@ function Level:addPowerup(name, duration)
 	end
 end
 
+
+
 ---Adjusts which music is playing based on the level's internal state.
 function Level:updateMusic()
 	local music = _Game:getMusic(self.musicName)
@@ -653,6 +659,42 @@ function Level:destroySphere()
 	end
 
 	self.destroyedSpheres = self.destroyedSpheres + 1
+end
+
+
+
+---Adds one to the successful shot counter, which is used to calculate accuracy.
+function Level:markSuccessfulShot()
+	self.successfulShots = self.successfulShots + 1
+end
+
+
+
+---Returns the percentage of shot spheres which have successfully landed.
+---@return number
+function Level:getShotAccuracy()
+	if self.spheresShot == 0 then
+		return 1
+	end
+	return self.successfulShots / self.spheresShot
+end
+
+
+
+---Adds one to the successful shot counter, which is used to calculate accuracy.
+function Level:markSuccessfulShot()
+	self.successfulShots = self.successfulShots + 1
+end
+
+
+
+---Returns the percentage of shot spheres which have successfully landed.
+---@return number
+function Level:getShotAccuracy()
+	if self.spheresShot == 0 then
+		return 1
+	end
+	return self.successfulShots / self.spheresShot
 end
 
 
@@ -911,7 +953,7 @@ function Level:getTargetHitScoreValues()
 	for _ = 1, 6 do
 		table.insert(tbl, (useFilter and filterScore) or currentScore)
 		useFilter = false
-		currentScore = _MathRoundUp((currentScore + (currentScore * 0.5)), 25)
+		currentScore = _Utils.roundUp((currentScore + (currentScore * 0.5)), 25)
 		local odd = tostring(currentScore):match("[27]5$")
 		if odd == "25" then
 			filterScore = currentScore + 25
@@ -1021,6 +1063,9 @@ function Level:begin()
 	self.curveCount = #self.map.paths
 
 	_Game:getMusic(self.musicName):reset()
+	if self.warmupLoopName then
+		self.warmupLoop = _Game:playSound(self.warmupLoopName)
+	end
 end
 
 
@@ -1099,6 +1144,13 @@ function Level:destroy()
 		-- Stop any ambient music.
 		ambientMusic:setVolume(0)
 	end
+
+	if self.warmupLoop then
+		self.warmupLoop:stop()
+	end
+	if self.failLoop then
+		self.failLoop:stop()
+	end
 end
 
 
@@ -1133,6 +1185,7 @@ function Level:reset()
     self.multiplier = self:getParameter("multiplierStarting")
 
 	self.spheresShot = 0
+	self.successfulShots = 0
 	self.sphereChainsSpawned = 0
 	self.maxChain = 0
 	self.maxCombo = 0
@@ -1188,6 +1241,7 @@ function Level:reset()
 	self.finishDelay = nil
 	self.bonusPathID = 1
 	self.bonusDelay = nil
+	self.introductionPathID = nil
 
 	self.gameSpeed = 1
 	self.gameSpeedTime = 0
@@ -1474,6 +1528,9 @@ function Level:lose()
 	end
 	self.shotSpheres = {}
     _Game:playSound("sound_events/level_lose.json")
+	if self.failLoopName then
+		self.failLoop = _Game:playSound(self.failLoopName)
+	end
 end
 
 
@@ -1638,6 +1695,7 @@ function Level:serialize()
 			coins = self.coins,
 			gems = self.gems,
 			spheresShot = self.spheresShot,
+			successfulShots = self.successfulShots,
             sphereChainsSpawned = self.sphereChainsSpawned,
 			targets = self.targets,
 			maxChain = self.maxChain,
@@ -1774,9 +1832,9 @@ function Level:saveStats()
 		_TimeScale = 1
 	else
 		local filename_save = "replay_" .. os.date("%Y%m%d_%H%M%S") .. "_" .. self.score .. ".txt"
-		_SaveFile(filename_save, self.replayCore:save())
-		_SaveJson("stats.json", s)
-		_SaveJson("level_parameters.json", self.levelParameters)
+		_Utils.saveFile(filename_save, self.replayCore:save())
+		_Utils.saveJson("stats.json", s)
+		_Utils.saveJson("level_parameters.json", self.levelParameters)
 	end
 	
 
@@ -1799,6 +1857,7 @@ function Level:deserialize(t)
 	self.coins = t.stats.coins
 	self.gems = t.stats.gems
 	self.spheresShot = t.stats.spheresShot
+	self.successfulShots = t.stats.successfulShots
     self.sphereChainsSpawned = t.stats.sphereChainsSpawned
 	self.targets = t.stats.targets
 	self.maxChain = t.stats.maxChain

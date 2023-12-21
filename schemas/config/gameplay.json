@@ -151,25 +151,6 @@
             ],
             "additionalProperties": false
         },
-        "collectibleBehavior": {
-            "type": "object",
-            "description": "Defines how Collectibles behave.",
-            "properties": {
-                "speed": {
-                    "$ref": "../_structures/ExprVector2.json",
-                    "description": "A starting speed of the Collectibles."
-                },
-                "acceleration": {
-                    "$ref": "../_structures/ExprVector2.json",
-                    "description": "An acceleration rate of the Collectibles."
-                }
-            },
-            "required": [
-                "speed",
-                "acceleration"
-            ],
-            "additionalProperties": false
-        },
         "bonusScarab": {
             "type": "object",
             "description": "Defines the Bonus Scarab.",
@@ -273,10 +254,20 @@
                     "description": "The maximum amount of chains the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.",
                     "exclusiveMinimum": 0
                 },
+                "offset": {
+                    "type": "number",
+                    "description": "The starting offset of the Scorpion, counting from the end of the path, in pixels.",
+                    "minimum": 0.0
+                },
                 "speed": {
                     "type": "number",
-                    "description": "How fast does the Scorpion move, in pixels per second.",
-                    "exclusiveMinimum": 0.0
+                    "description": "The starting speed of the Scorpion, in pixels per second.",
+                    "minimum": 0.0
+                },
+                "acceleration": {
+                    "type": "number",
+                    "description": "How fast does the Scorpion accelerate per second.",
+                    "minimum": 0.0
                 },
                 "trailParticle": {
                     "$ref": "../_structures/Particle.json",
@@ -343,12 +334,42 @@
                 "posY"
             ],
             "additionalProperties": false
+        },
+        "pathIntroduction": {
+            "type": "object",
+            "description": "Defines the path introduction. This is a trail of particles which goes through the map before the level starts.",
+            "properties": {
+                "particle": {
+                    "$ref": "../_structures/Particle.json",
+                    "description": "A one-time particle packet which spawns throughout the path."
+                },
+                "speed": {
+                    "type": "number",
+                    "description": "How fast does the trail go, in pixels per second.",
+                    "exclusiveMinimum": 0.0
+                },
+                "separation": {
+                    "type": "number",
+                    "description": "The distance between each particle, in pixels.",
+                    "exclusiveMinimum": 0.0
+                },
+                "separatePaths": {
+                    "type": "boolean",
+                    "description": "If set, each path will be introduced immediately after the previous one finishes. Otherwise, all paths will be introduced simultaneously."
+                }
+            },
+            "required": [
+                "particle",
+                "speed",
+                "separation",
+                "separatePaths"
+            ],
+            "additionalProperties": false
         }
     },
     "required": [
         "level",
         "sphereBehaviour",
-        "collectibleBehavior",
         "bonusScarab"
     ],
     "additionalProperties": false

@@ -50,7 +50,7 @@ function Target:onShot()
     self:destroy()
     _Game:playSound("sound_events/target_hit.json")
     local fruitRoundingValue = math.max(math.floor(_Game.session.level:getParameter("fruitRoundingValue")), 1)
-    local fruitScoreRounded = _MathRoundUp(_Game.session.level.targetHitScore, fruitRoundingValue)
+    local fruitScoreRounded = _Utils.roundUp(_Game.session.level.targetHitScore, fruitRoundingValue)
     _Game.session.level:grantScore(fruitScoreRounded)
 
     local bonusTime = _Game.session.level:getParameter("fruitTicksAdded")
