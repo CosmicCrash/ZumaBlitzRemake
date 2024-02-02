@@ -3,8 +3,8 @@
     "windowTitle": "Cosmic Crash (pre-alpha)",
     "engineVersion": "vCC",
     "nativeResolution": {
-        "x": 760,
-        "y": 570
+        "x": 800,
+        "y": 600
     },
     "richPresence": {
         "applicationID": "1059347284623638609",
