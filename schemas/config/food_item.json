@@ -639,11 +639,5 @@
             }
         }
     },
-    "required": [
-        "particle",
-        "pickupParticle",
-        "spawnSound",
-        "pickupSound"
-    ],
     "additionalProperties": false
 }
