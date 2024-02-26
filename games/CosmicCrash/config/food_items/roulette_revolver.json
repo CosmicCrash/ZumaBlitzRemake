@@ -1,0 +1,8 @@
+{
+    "$schema": "../../../../schemas/config/food_item.json",
+    "displayName": "Roulette Revolver",
+    "sprite": "",
+    "effects": {
+        "randomPowerupShots": 10
+    }
+}

@@ -809,7 +809,6 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	self.sphereChain.comboScore = self.sphereChain.comboScore + score
 
     -- add to various statistics.
-
 	self.map.level.combosScore = self.map.level.combosScore + (finalComboBonus * self.map.level.multiplier)
 	self.map.level.gapsScore = self.map.level.gapsScore + (gapbonus * self.map.level.multiplier)
 	self.map.level.speedScore = self.map.level.speedScore + (finalSpeedBonus * self.map.level.multiplier)
@@ -861,6 +860,20 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 
     -- Update Hot Frog meter
 	self.map.level:incrementBlitzMeter(0.055)
+
+	-- Roulette Revolver
+	if self.map.level:getParameter("randomPowerupShots") > 0 and self.map.level.matchesMade > 0
+		and (self.map.level.matchesMade % self.map.level:getParameter("randomPowerupShots") == 0
+		and self.map.level.blitzMeter < 1
+	) then
+		-- TODO: dehardcode this
+		local powerBalls = { -6, -2, -1, 0 }
+		local powerBall = powerBalls[self.map.level.ball_rng:random(1, #powerBalls)]
+		if powerBall == 0 then
+			return
+		end
+		self.map.level.shooter:getSphere(powerBall)
+	end
 end
 
 

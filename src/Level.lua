@@ -1108,6 +1108,7 @@ end
 
 function Level:resetGameStatistics()
 
+	self.matchesMade = 0
 	self.gapsNum = 0
 	self.combosScore = 0
 	self.gapsScore = 0
@@ -1282,6 +1283,7 @@ function Level:setLevelDefaultParameters()
 	self.levelParameters["comboBonusPointsBase"] = 1000
 	self.levelParameters["curveClearTicksAdded"] = 0
 	self.levelParameters["curveClearPointsBase"] = 1000
+	self.levelParameters["randomPowerupShots"] = 0
 end
 
 function Level:addPowerEffects()
@@ -1528,6 +1530,7 @@ function Level:saveStats()
 		PlatformName = "Social",
 		ClientVersion = "ZBR 0.1.1 alpha",
 		MetricsType = "Gameplay",
+		MatchesMade = self.matchesMade,
 		GapsNum = self.gapsNum,
 		BallsClearedNum = self.destroyedSpheres,
 		MultiplierMax = self.multiplier,

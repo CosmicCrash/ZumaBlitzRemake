@@ -93,6 +93,7 @@ function Sphere:update(dt)
 				self.map.level.combo = 0
 			end
 			if self.sphereGroup:shouldMatch(index) then
+				self.map.level.matchesMade = self.map.level.matchesMade + 1
 				self.sphereGroup:matchAndDelete(index)
 			end
 		end
