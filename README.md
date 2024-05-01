@@ -1,6 +1,6 @@
 > # [Please view this announcement post as to why Zuma Blitz Remake is cancelled forever.](https://github.com/ZumaBlitzRemake/ZumaBlitzRemake/discussions/23)
-> Don't worry! The project will be revived with originally-made assets.
-> This will in turn, turn ZBR from a remake to a "spiritual successor" instead of a remake.
+> Do worry! You will need to continue the project yourself if you want this project to see the light of day.
+> Make sure to contact us and read the entirety of the post linked above!
 
 <p align="center"><img src="https://raw.githubusercontent.com/ZumaBlitzRemake/ZumaBlitzRemake/master/games/ZumaBlitzRemake/images/splash/logo.png"></p>
 
