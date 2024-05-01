@@ -1,4 +1,4 @@
-> # [Please view this announcement post as to why Zuma Blitz Remake isn't being worked on right now.](https://github.com/ZumaBlitzRemake/ZumaBlitzRemake/discussions/23)
+> # [Please view this announcement post as to why Zuma Blitz Remake is cancelled forever.](https://github.com/ZumaBlitzRemake/ZumaBlitzRemake/discussions/23)
 > Don't worry! The project will be revived with originally-made assets.
 > This will in turn, turn ZBR from a remake to a "spiritual successor" instead of a remake.
 
